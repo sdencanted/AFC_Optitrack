@@ -111,8 +111,8 @@ if __name__ == '__main__':
             a2 = joystick.get_axis(2)  # thrust
             a3 = joystick.get_axis(3)
 
-            button0 = joystick.get_button(0)
-            button1 = joystick.get_button(1)
+            L1 = joystick.get_button(0)
+            R1 = joystick.get_button(1)
 
             # thrust from control pad
             conPad = int((a2 - highest) * rate)
@@ -167,15 +167,15 @@ if __name__ == '__main__':
             #     break
 
             # desired trajectory - hovering
-            px_s = 1.67*0
-            py_s = 0.56
-            pz_s = 0.2
+            px_s = 0.16
+            py_s = 0.62
+            pz_s = 0.5
 
-            # landing sign
-            if button1 == 0:
-                px_s = 1.67
-                py_s = 0.56
-                pz_s = 0.1
+            # landing sign or hovering at 1m hgt
+            if R1 == 0: # right switch all the way up
+                px_s = 0.16
+                py_s = 0.62
+                pz_s = 0.01
 
             # update position
             px_m = robot[0]
@@ -211,7 +211,7 @@ if __name__ == '__main__':
 
             # integration term for z position
             I_term_z = enable * kiz * pz_err * dt / 2 + I_term_z
-            fz_d = kpz * pz_err - kdz * vz + I_term_z + conPad
+            fz_d = kpz * pz_err - kdz * vz + I_term_z + 33_000
 
             fx = fx_d
             fy = fy_d
@@ -219,7 +219,7 @@ if __name__ == '__main__':
 
             psi = robot[3]
 
-            des_pitch, des_roll, des_thrust = fsolve(equations, [0, 0, 1000])
+            des_pitch, des_roll, des_thrust = fsolve(equations, [0, 0, 30000])
 
             des_roll = int(des_roll * 180 / math.pi)
             des_pitch = int(des_pitch * 180 / math.pi)
@@ -244,34 +244,29 @@ if __name__ == '__main__':
             pitch_set = -a1 * 20 / 0.835  # degree
             yaw_rate_set = -a3 * 20 / 0.835  # degree/s
 
-            cf.commander.send_setpoint(1*des_roll, 1*des_pitch, 0, thrust * 0 + conPad * 1)   # optitrack control [roll,  pitch ,  yawrate, thrust]
+            #cf.commander.send_setpoint(des_roll, des_pitch, 0, thrust * 0 + conPad * 1)   # optitrack control [roll,  pitch ,  yawrate, thrust]
 
-            #cf.commander.send_setpoint(roll_set, pitch_set, 0, thrust * 0 + conPad * 1)
-            
-            #time.sleep(0.1)
-            
-
+            cf.commander.send_setpoint(roll_set, pitch_set, 0, thrust * 0 + conPad * 1) 
+            print("desired inputs: ", des_roll, des_pitch, 0, thrust * 1 + conPad * 0) 
             count = count + 1
-            if count % 10 == 0:
-                
-                print(abs_time)
-                print('robot_position', robot)
-                print('conPad', conPad)
-                print(des_pitch, des_roll)
-                print(px_err, py_err)
 
+            #print('robot_position', robot)
+            print('conPad', conPad)
+            #print('R1', R1)
+            #print("vel: ", vx, vy)
 
             # save data
             data_saver.add_item(abs_time,
                                 robot,
                                 )
 
-            if button0 == 1:
+            if L1 == 1: # emergency stop cut throttle left hand switch all the way up
                 cf.commander.send_setpoint(0, 0, 0, 10)
                 print('Emergency Stopped')
                 break
 
         # save data
+        # path = '/Users/airlab/PycharmProjects/AFC/data/'
         path = '/usr/bin/python3 /home/emmanuel/AFC_Optitrack/linux_data/'
         data_saver.save_data(path)
 
