@@ -12,6 +12,9 @@ import Data_process_swarm
 
 import math
 from scipy.optimize import fsolve
+from pyrr import quaternion
+import numpy as np
+import numpy.linalg as la
 
 
 def equations(p):
@@ -20,6 +23,34 @@ def equations(p):
     R23 = math.sin(psi) * math.sin(theta) * math.cos(phi) - math.cos(psi) * math.sin(phi)
     R33 = math.cos(phi) * math.cos(theta)
     return [R13 * f - fx, R23 * f - fy, R33 * f - fz]
+
+
+def attitude_loop(quat,control_input):
+    qz = quaternion.create(quat[0], quat[1], quat[2], quat[3]) # x y z w
+    qzi = quaternion.inverse(qz)
+    ez = np.array([0, 0, 1]) # 3,:
+    disk_vector = quaternion.apply_to_vector(qz, ez) # flattened array
+    disk_vector = np.array([[disk_vector[0],disk_vector[1],disk_vector[2]]])  # 1 x 3 - row based simulated disk vector
+    
+    # pos control input here
+    zd = control_input/la.norm(control_input,2)
+    zd = np.array([[zd[0],zd[1],zd[2]]]) # 1 x 3 - row based simulated zd which is desired vector 
+    num = np.dot(disk_vector,np.transpose(zd)) # 1 x 1
+    den = la.norm(disk_vector,2)*la.norm(zd,2) # L2 norm of a and b
+    angle = math.acos(num/den) # angle in radians
+
+    n = np.cross(disk_vector,zd)/la.norm(np.cross(disk_vector,zd)) # cross product of a and b - 1 x 3
+    n = list(n.flat) # flattened array
+    B = quaternion.apply_to_vector(qzi, n) # inverse of qz applied to n
+    error_quat = np.array([math.cos(angle/2), B[0]*math.sin(angle/2), B[1]*math.sin(angle/2), B[2]*math.sin(angle/2)]) # abt w x y z
+
+    if error_quat[0] < 0:
+        cmd_att = -2*error_quat[1:3]
+    else:
+        cmd_att = 2*error_quat[1:3] # bod_att[0] = abt x, bod_att[1] = abt y 
+    cmd_att = kpa*(cmd_att) # abt x y z
+
+    return cmd_att
 
 
 if __name__ == '__main__':
@@ -60,6 +91,8 @@ if __name__ == '__main__':
     kix = 0
     kiy = 0
     kiz = 10000
+
+    kpa = np.array([0.1, 0.1]) # abt x y z
 
     # other parameters
     count = 0
@@ -148,7 +181,7 @@ if __name__ == '__main__':
             yaw_3 = data_processor.get_heading_x3()
 
             # position feedback
-            robot_1 = [data_processor.px1, data_processor.py1, data_processor.pz1, yaw_1]
+            robot_1 = [data_processor.px1, data_processor.py1, data_processor.pz1, data_processor.quat_x1, data_processor.quat_y1, data_processor.quat_z1, data_processor.quat_w1, yaw_1]
             robot_2 = [data_processor.px2, data_processor.py2, data_processor.pz2, yaw_2]
             robot_3 = [data_processor.px3, data_processor.py3, data_processor.pz3, yaw_3]
 
@@ -167,9 +200,9 @@ if __name__ == '__main__':
             #     break
 
             # desired trajectory - hovering
-            px_s = 1.67*0
-            py_s = 0.56
-            pz_s = 0.2
+            px_s = 0.0
+            py_s = 0.4
+            pz_s = 0.3
 
             # landing sign
             if button1 == 0:
@@ -208,12 +241,13 @@ if __name__ == '__main__':
             # pid controller
             fx_d = kpx * px_err - kdx * vx
             fy_d = kpy * py_err - kdy * vy
+            control_input = np.array([fx_d,fy_d,0])
 
             # integration term for z position
             I_term_z = enable * kiz * pz_err * dt / 2 + I_term_z
-            fz_d = kpz * pz_err - kdz * vz + I_term_z + conPad
+            fz_d = kpz * pz_err - kdz * vz + I_term_z + 10000
 
-            fx = fx_d
+            """ fx = fx_d
             fy = fy_d
             fz = fz_d * enable + 10_000
 
@@ -223,6 +257,11 @@ if __name__ == '__main__':
 
             des_roll = int(des_roll * 180 / math.pi)
             des_pitch = int(des_pitch * 180 / math.pi)
+ """
+            cmd_att = attitude_loop(robot[3:7],control_input)
+            des_roll = int(cmd_att[0]*180/math.pi)
+            des_pitch = int(cmd_att[1]*180/math.pi)
+            des_thrust = fz_d
 
             # output saturation
             if des_roll > 25:
@@ -272,6 +311,6 @@ if __name__ == '__main__':
                 break
 
         # save data
-        path = '/home/emmanuel/AFC_Optitrack/linux_data/'
+        path = '/usr/bin/python3 /home/emmanuel/AFC_Optitrack/linux_data/'
         data_saver.save_data(path)
 
