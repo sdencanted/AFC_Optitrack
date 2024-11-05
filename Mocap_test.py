@@ -19,7 +19,7 @@ if __name__ == '__main__':
                                    )
 
     time_start = time.time()
-    time_end = time_start + 20
+    time_end = time_start + 1000
     last_time = 0
 
     count = 0
@@ -48,7 +48,7 @@ if __name__ == '__main__':
         t_diff = abs_time -last_time
         last_time = abs_time
         
-        print ("time diff:", t_diff) 
+        #print ("time diff:", t_diff) 
         print(raw_data)
         #print("rpy: ", data_processor.get_RPY())
         
@@ -56,6 +56,6 @@ if __name__ == '__main__':
         #time.sleep(0.05)
         # save data
     #path = '/Users/airlab/PycharmProjects/AFC/data/'
-    path = '/home/emmanuel/AFC_Optitrack/linux_data/'
-    data_saver.save_data(path)
+    #path = '/home/emmanuel/AFC_Optitrack/linux_data/'
+    #data_saver.save_data(path)
 

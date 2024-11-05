@@ -26,7 +26,7 @@ def equations(p):
 
 
 def attitude_loop(quat,control_input):
-    qz = quaternion.create(quat[0], quat[1], quat[2], quat[3]) # x y z w
+    qz = quaternion.create(quat[0], quat[1], quat[2], quat[3]/np.abs(quat[3])) # x y z w
     qzi = quaternion.inverse(qz)
     ez = np.array([0, 0, 1]) # 3,:
     disk_vector = quaternion.apply_to_vector(qz, ez) # flattened array
@@ -50,7 +50,7 @@ def attitude_loop(quat,control_input):
         cmd_att = 2*error_quat[1:3] # bod_att[0] = abt x, bod_att[1] = abt y 
     cmd_att = kpa*(cmd_att) # abt x y z
 
-    return cmd_att
+    return (cmd_att)
 
 
 if __name__ == '__main__':
@@ -82,17 +82,17 @@ if __name__ == '__main__':
     # control gains
     kpx = 12_000
     kpy = 12_000
-    kpz = 26_000
+    kpz = 20_000
 
-    kdx = 12_000
-    kdy = 12_000
-    kdz = 12_000
+    kdx = 5_000
+    kdy = 5_000
+    kdz = 10_000
 
     kix = 0
     kiy = 0
     kiz = 10000
 
-    kpa = np.array([0.1, 0.1]) # abt x y z
+    kpa = np.array([1.0, 1.0]) # abt x y z
 
     # other parameters
     count = 0
@@ -201,11 +201,11 @@ if __name__ == '__main__':
 
             # desired trajectory - hovering
             px_s = 0.0
-            py_s = 0.4
-            pz_s = 0.3
+            py_s = 0.56
+            pz_s = 0.5/0.4
 
             # landing sign
-            if button1 == 0:
+            if button1 == 1:
                 px_s = 1.67
                 py_s = 0.56
                 pz_s = 0.1
@@ -241,11 +241,12 @@ if __name__ == '__main__':
             # pid controller
             fx_d = kpx * px_err - kdx * vx
             fy_d = kpy * py_err - kdy * vy
-            control_input = np.array([fx_d,fy_d,0])
+            fz_d = kpz * pz_err - kdz * vz
+            control_input = np.array([fx_d,fy_d,fz_d])
 
             # integration term for z position
-            I_term_z = enable * kiz * pz_err * dt / 2 + I_term_z
-            fz_d = kpz * pz_err - kdz * vz + I_term_z + 10000
+            I_term_z = enable * 10 * pz_err * dt / 2 + I_term_z
+            fz_d = kpz * pz_err - kdz * vz + 40000
 
             """ fx = fx_d
             fy = fy_d
@@ -257,7 +258,7 @@ if __name__ == '__main__':
 
             des_roll = int(des_roll * 180 / math.pi)
             des_pitch = int(des_pitch * 180 / math.pi)
- """
+        """
             cmd_att = attitude_loop(robot[3:7],control_input)
             des_roll = int(cmd_att[0]*180/math.pi)
             des_pitch = int(cmd_att[1]*180/math.pi)
@@ -283,9 +284,9 @@ if __name__ == '__main__':
             pitch_set = -a1 * 20 / 0.835  # degree
             yaw_rate_set = -a3 * 20 / 0.835  # degree/s
 
-            cf.commander.send_setpoint(1*des_roll, 1*des_pitch, 0, thrust * 0 + conPad * 1)   # optitrack control [roll,  pitch ,  yawrate, thrust]
+            cf.commander.send_setpoint(1*des_roll, 1*des_pitch, 0, thrust * 1 + conPad * 0)   # optitrack control [roll,  pitch ,  yawrate, thrust]
 
-            #cf.commander.send_setpoint(roll_set, pitch_set, 0, thrust * 0 + conPad * 1)
+            #cf.commander.send_setpoint(roll_set, pitch_set, 0, thrust * 1 + conPad * 0) # manual ctrl
             
             #time.sleep(0.1)
             
@@ -293,24 +294,29 @@ if __name__ == '__main__':
             count = count + 1
             if count % 10 == 0:
                 
-                print(abs_time)
+                print(abs_time) # updating at 120 hz 
                 print('robot_position', robot)
+                print('robot quat', robot[3:7])
+                print('robot ref pos', px_s, py_s, pz_s)
+                print('control input', control_input)
                 print('conPad', conPad)
-                print(des_pitch, des_roll)
-                print(px_err, py_err)
+                print('des roll and pitch:', des_roll, des_pitch)
+                print('fz_d:', fz_d)
+                
+                #print(px_err, py_err)
 
 
             # save data
-            data_saver.add_item(abs_time,
-                                robot,
-                                )
+            #data_saver.add_item(abs_time,
+            #                    robot,
+            #                    )
 
             if button0 == 1:
-                cf.commander.send_setpoint(0, 0, 0, 10)
-                print('Emergency Stopped')
-                break
+               cf.commander.send_setpoint(0, 0, 0, 10)
+               print('Emergency Stopped')
+               break
 
-        # save data
-        path = '/usr/bin/python3 /home/emmanuel/AFC_Optitrack/linux_data/'
-        data_saver.save_data(path)
+            # save data
+            #path = '/home/emmanuel/AFC_Optitrack/linux_data/'
+            #data_saver.save_data(path)
 

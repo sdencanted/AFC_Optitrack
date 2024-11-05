@@ -167,12 +167,12 @@ if __name__ == '__main__':
             #     break
 
             # desired trajectory - hovering
-            px_s = 1.67*0
+            px_s = 0.0
             py_s = 0.56
             pz_s = 0.2
 
             # landing sign
-            if button1 == 0:
+            if button1 == 1:
                 px_s = 1.67
                 py_s = 0.56
                 pz_s = 0.1
@@ -244,9 +244,9 @@ if __name__ == '__main__':
             pitch_set = -a1 * 20 / 0.835  # degree
             yaw_rate_set = -a3 * 20 / 0.835  # degree/s
 
-            cf.commander.send_setpoint(1*des_roll, 1*des_pitch, 0, thrust * 0 + conPad * 1)   # optitrack control [roll,  pitch ,  yawrate, thrust]
+            #cf.commander.send_setpoint(1*des_roll, 1*des_pitch, 0, thrust * 0 + conPad * 1)   # optitrack control [roll,  pitch ,  yawrate, thrust]
 
-            #cf.commander.send_setpoint(roll_set, pitch_set, 0, thrust * 0 + conPad * 1)
+            cf.commander.send_setpoint(roll_set, pitch_set, 0, thrust * 0 + conPad * 1) # when using tx to fly manually
             
             #time.sleep(0.1)
             
@@ -256,6 +256,7 @@ if __name__ == '__main__':
                 
                 print(abs_time)
                 print('robot_position', robot)
+                print('robot ref pos', px_s, py_s, pz_s)
                 print('conPad', conPad)
                 print(des_pitch, des_roll)
                 print(px_err, py_err)
@@ -272,6 +273,6 @@ if __name__ == '__main__':
                 break
 
         # save data
-        path = '/home/emmanuel/AFC_Optitrack/linux_data/'
-        data_saver.save_data(path)
+        #path = '/home/emmanuel/AFC_Optitrack/linux_data/'
+        #data_saver.save_data(path)
 
