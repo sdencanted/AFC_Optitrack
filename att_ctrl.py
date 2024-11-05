@@ -202,7 +202,7 @@ if __name__ == '__main__':
             # desired trajectory - hovering
             px_s = 0.0
             py_s = 0.56
-            pz_s = 0.5/0.4
+            pz_s = 1.0
 
             # landing sign
             if button1 == 1:
@@ -258,7 +258,8 @@ if __name__ == '__main__':
 
             des_roll = int(des_roll * 180 / math.pi)
             des_pitch = int(des_pitch * 180 / math.pi)
-        """
+            """
+            
             cmd_att = attitude_loop(robot[3:7],control_input)
             des_roll = int(cmd_att[0]*180/math.pi)
             des_pitch = int(cmd_att[1]*180/math.pi)
@@ -288,18 +289,15 @@ if __name__ == '__main__':
 
             #cf.commander.send_setpoint(roll_set, pitch_set, 0, thrust * 1 + conPad * 0) # manual ctrl
             
-            #time.sleep(0.1)
-            
-
             count = count + 1
             if count % 10 == 0:
                 
-                print(abs_time) # updating at 120 hz 
+                #print(abs_time) # updating at 120 hz 
                 print('robot_position', robot)
-                print('robot quat', robot[3:7])
+                #print('robot quat', robot[3:7])
                 print('robot ref pos', px_s, py_s, pz_s)
                 print('control input', control_input)
-                print('conPad', conPad)
+                #print('conPad', conPad)
                 print('des roll and pitch:', des_roll, des_pitch)
                 print('fz_d:', fz_d)
                 
@@ -316,7 +314,7 @@ if __name__ == '__main__':
                print('Emergency Stopped')
                break
 
-            # save data
-            #path = '/home/emmanuel/AFC_Optitrack/linux_data/'
-            #data_saver.save_data(path)
+# save data
+#path = '/home/emmanuel/AFC_Optitrack/linux_data/'
+#data_saver.save_data(path)
 
