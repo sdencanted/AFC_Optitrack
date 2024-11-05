@@ -16,7 +16,7 @@ mat_data = loadmat(os.path.join(file_path, last_file))
 #print(mat_data)
 time = mat_data['Data_time']
 position = mat_data['data']
-px = [row[0] for row in position]
+px = [row[0] for row in position] # column vector
 py = [row[1] for row in position]
 pz = [row[2] for row in position]
 yaw = [row[3] for row in position]

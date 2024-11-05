@@ -90,7 +90,7 @@ if __name__ == '__main__':
 
     kix = 0
     kiy = 0
-    kiz = 10000
+    kiz = 1
 
     kpa = np.array([1.0, 1.0]) # abt x y z
 
@@ -245,8 +245,9 @@ if __name__ == '__main__':
             control_input = np.array([fx_d,fy_d,fz_d])
 
             # integration term for z position
-            I_term_z = enable * 10 * pz_err * dt / 2 + I_term_z
-            fz_d = kpz * pz_err - kdz * vz + 40000
+            # I_term_z = enable * 10 * pz_err * dt / 2 + I_term_z
+            I_term_z = kiz * pz_err * dt
+            fz_d = kpz * pz_err - kdz * vz + 40000 + I_term_z
 
             """ fx = fx_d
             fy = fy_d
@@ -263,7 +264,7 @@ if __name__ == '__main__':
             cmd_att = attitude_loop(robot[3:7],control_input)
             des_roll = int(cmd_att[0]*180/math.pi)
             des_pitch = int(cmd_att[1]*180/math.pi)
-            des_thrust = fz_d
+            des_thrust = enable * fz_d
 
             # output saturation
             if des_roll > 25:
