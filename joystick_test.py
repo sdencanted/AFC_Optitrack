@@ -52,5 +52,5 @@ if __name__ == '__main__':
 
         conPad = int((a2 - highest) * rate)
 
-        #print(conPad)
+        print(conPad)
 

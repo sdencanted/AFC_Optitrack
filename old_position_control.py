@@ -24,18 +24,18 @@ def equations(p):
 
 if __name__ == '__main__':
 
-    data_receiver = Mocap.Udp()
+    """ data_receiver = Mocap.Udp()
     sample_rate = data_receiver.get_sample_rate()
     sample_time = 1 / sample_rate
     data_processor = Data_process_swarm.RealTimeProcessor(5, [16], 'lowpass', 'cheby2', 85, sample_rate)
 
     data_saver = DataSave.SaveData('Data_time',
                                    'data'
-                                   )
+                                   ) """
 
     # robot address
 
-    URI = 'radio://0/30/2M/E7E7E7E704'
+    URI = 'radio://0/30/2M/E7E7E7E703'
     #URI = 'radio://0/114/2M/E7E7E7E706'
 
     logging.basicConfig(level=logging.ERROR)
@@ -130,7 +130,7 @@ if __name__ == '__main__':
             else:
                 enable = 1
 
-            # require data from Mocap
+            """ # require data from Mocap
             data = data_receiver.get_data()
             # data unpack
             data_processor.data_unpack(data)
@@ -154,7 +154,7 @@ if __name__ == '__main__':
 
             # select robot number
 
-            robot = robot_1
+            robot = robot_1 """
 
             # if robot_num == '1':
             #     robot = robot_1
@@ -178,12 +178,12 @@ if __name__ == '__main__':
                 pz_s = 0.01
 
             # update position
-            px_m = robot[0]
+            """ px_m = robot[0]
 
             py_m = robot[1]
 
             pz_m = robot[2]
-
+ """
             # px_m = data_processor.px
             # py_m = data_processor.py
             # pz_m = data_processor.pz
@@ -193,7 +193,7 @@ if __name__ == '__main__':
             dt = time.time() - time_last  #  time difference
             time_last = time.time()
 
-            vx = (px_m - px_last) / dt
+            """ vx = (px_m - px_last) / dt
             vy = (py_m - py_last) / dt
             vz = (pz_m - pz_last) / dt
 
@@ -242,12 +242,12 @@ if __name__ == '__main__':
 
             roll_set = -a0 * 20 / 0.835  # degree
             pitch_set = -a1 * 20 / 0.835  # degree
-            yaw_rate_set = -a3 * 20 / 0.835  # degree/s
+            yaw_rate_set = -a3 * 20 / 0.835  # degree/s """
 
             #cf.commander.send_setpoint(des_roll, des_pitch, 0, thrust * 0 + conPad * 1)   # optitrack control [roll,  pitch ,  yawrate, thrust]
 
-            cf.commander.send_setpoint(roll_set, pitch_set, 0, thrust * 0 + conPad * 1) 
-            print("desired inputs: ", des_roll, des_pitch, 0, thrust * 1 + conPad * 0) 
+            cf.commander.send_setpoint(0, 0, 0, conPad * 1) 
+            #print("desired inputs: ", des_roll, des_pitch, 0, thrust * 1 + conPad * 0) 
             count = count + 1
 
             #print('robot_position', robot)
@@ -256,9 +256,9 @@ if __name__ == '__main__':
             #print("vel: ", vx, vy)
 
             # save data
-            data_saver.add_item(abs_time,
+            """ data_saver.add_item(abs_time,
                                 robot,
-                                )
+                                ) """
 
             if L1 == 1: # emergency stop cut throttle left hand switch all the way up
                 cf.commander.send_setpoint(0, 0, 0, 10)
@@ -267,6 +267,6 @@ if __name__ == '__main__':
 
         # save data
         # path = '/Users/airlab/PycharmProjects/AFC/data/'
-        path = '/usr/bin/python3 /home/emmanuel/AFC_Optitrack/linux_data/'
-        data_saver.save_data(path)
+        """ path = '/usr/bin/python3 /home/emmanuel/AFC_Optitrack/linux_data/'
+        data_saver.save_data(path) """
 

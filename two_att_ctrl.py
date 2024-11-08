@@ -55,7 +55,7 @@ def attitude_loop(quat,control_input):
 
 if __name__ == '__main__':
 
-    data_receiver = Mocap.Udp()
+    data_receiver = Mocap.Udp(udp_ip="127.0.0.1", udp_port=14550, num_bodies=1)
     sample_rate = data_receiver.get_sample_rate()
     sample_time = 1 / sample_rate
     data_processor = Data_process_swarm.RealTimeProcessor(5, [16], 'lowpass', 'cheby2', 85, sample_rate)
@@ -66,7 +66,7 @@ if __name__ == '__main__':
 
     # robot address
 
-    URI = 'radio://0/30/2M/E7E7E7E703'
+    URI = 'radio://0/30/2M/E7E7E7E704'
     #URI = 'radio://0/114/2M/E7E7E7E706'
 
     logging.basicConfig(level=logging.ERROR)
@@ -187,7 +187,7 @@ if __name__ == '__main__':
 
             # select robot number
 
-            robot = robot_1
+            robot = robot_2
 
             # if robot_num == '1':
             #     robot = robot_1
@@ -319,6 +319,6 @@ if __name__ == '__main__':
                break
 
 # save data
-#path = '/home/emmanuel/AFC_Optitrack/robot_1/'
+#path = '/home/emmanuel/AFC_Optitrack/robot_2/'
 #data_saver.save_data(path)
 

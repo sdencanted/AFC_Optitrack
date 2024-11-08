@@ -26,7 +26,7 @@ def equations(p):
 
 
 def attitude_loop(quat,control_input):
-    qz = quaternion.create(quat[0], quat[1], quat[2], 1) # x y z w
+    qz = quaternion.create(quat[0], quat[1], quat[2], quat[3]/np.abs(quat[3])) # x y z w
     qzi = quaternion.inverse(qz)
     ez = np.array([0, 0, 1]) # 3,:
     disk_vector = quaternion.apply_to_vector(qz, ez) # flattened array
@@ -66,7 +66,7 @@ if __name__ == '__main__':
 
     # robot address
 
-    URI = 'radio://0/30/2M/E7E7E7E703'
+    URI = 'radio://0/30/2M/E7E7E7E704'
     #URI = 'radio://0/114/2M/E7E7E7E706'
 
     logging.basicConfig(level=logging.ERROR)
@@ -287,7 +287,7 @@ if __name__ == '__main__':
             pitch_set = -a1 * 20 / 0.835  # degree
             yaw_rate_set = -a3 * 20 / 0.835  # degree/s
 
-            cf.commander.send_setpoint(0*des_roll, 0*des_pitch, 0, thrust * 0 + conPad * 1)   # optitrack control [roll,  pitch ,  yawrate, thrust]
+            cf.commander.send_setpoint(1*des_roll, 1*des_pitch, 0, thrust * 1 + conPad * 0)   # optitrack control [roll,  pitch ,  yawrate, thrust]
 
             #cf.commander.send_setpoint(roll_set, pitch_set, 0, thrust * 1 + conPad * 0) # manual ctrl
             
@@ -319,6 +319,6 @@ if __name__ == '__main__':
                break
 
 # save data
-#path = '/home/emmanuel/AFC_Optitrack/robot_1/'
+#path = '/home/emmanuel/AFC_Optitrack/linux_data/'
 #data_saver.save_data(path)
 
