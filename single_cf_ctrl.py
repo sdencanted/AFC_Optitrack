@@ -200,7 +200,14 @@ if __name__ == '__main__':
                 #print(abs_time) # updating at 120 hz 
             #print("it works lol")
                 
-                #print(px_err, py_err)
+            count = count + 1
+            if count % 10 == 0:
+                
+                #print(abs_time) # updating at 120 hz 
+                print('robot_position', robot_1[0:3])
+                #print('robot quat', robot[3:7])
+                print('robot ref pos', att_robot_1.info_update())
+                print('pos_error', att_robot_1.info_update()-robot_1[0:3])
 
 
             # save data

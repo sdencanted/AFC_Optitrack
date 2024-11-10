@@ -28,14 +28,22 @@ class att_ctrl(object):
         self.ref_pos = np.array([0,0,0]) 
         self.position_error_last = np.array([0, 0, 0])
         self.control_signal = np.array([0,0,0]) 
+        self.z_offset = 0
         
 
     def update(self, robot_locale, dt, ref_pos, z_offset):
+        self.z_offset = z_offset
         self.robot_pos = np.array([robot_locale[0:3]])
         self.robot_quat = np.array([robot_locale[3:7]])
         self.dt = dt
         self.ref_pos = ref_pos
-        self.ref_pos[2] = self.ref_pos[2] + z_offset
+        self.ref_pos[2] = self.ref_pos[2] + self.z_offset
+
+
+    def info_update(self):
+        ref_pos = self.ref_pos
+        ref_pos[2] = ref_pos[2] - self.z_offset 
+        return ref_pos
 
 
     def attitude_loop(self, quat, control_input):
