@@ -184,6 +184,7 @@ if __name__ == '__main__':
 
             # reference position
             #ref_pos_1 = traj_gen.simple_rectangle(0, abs_time)
+            #ref_pos_1 = traj_gen.simple_circle(0, 0.5, count)
             ref_pos_1 = traj_gen.hover_test(-1)
             ref_pos = ref_pos_1[0]
             
@@ -200,7 +201,7 @@ if __name__ == '__main__':
             cmd_att = np.array([cmd_att_1])
             seq_args = swarm_exe(cmd_att)
             swarm.parallel(arm_throttle, args_dict=seq_args)
-                         
+
             count = count + 1
             if count % 10 == 0:
                 
