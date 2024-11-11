@@ -24,7 +24,13 @@ import trajectory_generator
 # robot address
 # Change uris and sequences according to your setup
 
-URI1 = 'radio://0/30/2M/E7E7E7E704'
+# radio 1
+URI1 = 'radio://0/20/2M/E7E7E7E702'
+# radio 2
+#URI1 = 'radio://1/30/2M/E7E7E7E703'
+#URI1 = 'radio://1/30/2M/E7E7E7E704'
+
+
 
 uris = {
     URI1,
@@ -170,7 +176,7 @@ if __name__ == '__main__':
             robot_3 = [data_processor.px3, data_processor.py3, data_processor.pz3, data_processor.quat_x3, data_processor.quat_y3, data_processor.quat_z3, data_processor.quat_w3, yaw_3]
 
             #assign robot
-            robot = robot_2
+            robot = robot_1
 
             # calculate velocity
             dt = time.time() - time_last  #  time difference
@@ -178,7 +184,7 @@ if __name__ == '__main__':
 
             # reference position
             #ref_pos_1 = traj_gen.simple_rectangle(0, abs_time)
-            ref_pos_1 = traj_gen.hover_test(0.8)
+            ref_pos_1 = traj_gen.hover_test(-1)
             ref_pos = ref_pos_1[0]
             
             # update positions etc.
@@ -193,28 +199,16 @@ if __name__ == '__main__':
             cmd_att_1 = att_robot_1.get_angles_and_thrust(enable)
             cmd_att = np.array([cmd_att_1])
             seq_args = swarm_exe(cmd_att)
-            #print("seq_args: ", seq_args)
             swarm.parallel(arm_throttle, args_dict=seq_args)
-            #print (ref_pos_1[1])
-            
-            
-            #count = count + 1
-            #if count % 10 == 0:
-                
-                #print(abs_time) # updating at 120 hz 
-            #print("it works lol")
-
-            info = att_robot_1.info_update_z()
-                
+                         
             count = count + 1
             if count % 10 == 0:
                 
                 #print(abs_time) # updating at 120 hz
                 print (ref_pos_1[1]) 
                 print('robot_position', robot[0], robot[1], robot[2])
-                #print('robot quat', robot[3:7])
-                print('robot ref pos', info[2])
-                print('pos_error', info[2]-robot[2])
+                print('robot ref pos', ref_pos[2])
+                print('pos_error', ref_pos[2]-robot[2])
 
 
             # save data

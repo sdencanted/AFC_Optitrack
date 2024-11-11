@@ -1,0 +1,19 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# theta goes from 0 to 2pi
+theta = np.linspace(0, 2*np.pi, 100)
+
+# the radius of the circle
+r = np.sqrt(0.5)
+
+# compute x1 and x2
+x = r*np.cos(theta)
+y = r*np.sin(theta) + 0.8
+
+# create the figure
+print(np.shape(x))
+fig, ax = plt.subplots(1)
+ax.plot(x, y)
+ax.set_aspect(1)
+plt.show()

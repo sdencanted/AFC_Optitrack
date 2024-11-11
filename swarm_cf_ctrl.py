@@ -24,8 +24,9 @@ import trajectory_generator
 # robot address
 # Change uris and sequences according to your setup
 URI1 = 'radio://0/20/2M/E7E7E7E702'
-URI2 = 'radio://0/30/2M/E7E7E7E704'
-URI3 = 'radio://0/30/2M/E7E7E7E703'
+URI2 = 'radio://1/30/2M/E7E7E7E703'
+URI3 = 'radio://1/30/2M/E7E7E7E704'
+
 
 uris = {
     URI1,
@@ -189,19 +190,21 @@ if __name__ == '__main__':
             robot_b = [data_processor.px2, data_processor.py2, data_processor.pz2, data_processor.quat_x2, data_processor.quat_y2, data_processor.quat_z2, data_processor.quat_w2, yaw_2]
             robot_c = [data_processor.px3, data_processor.py3, data_processor.pz3, data_processor.quat_x3, data_processor.quat_y3, data_processor.quat_z3, data_processor.quat_w3, yaw_3]
 
+            # in case optitrack screws up the order somehow
             robot_1 = robot_a #2
             robot_2 = robot_b #4
             robot_3 = robot_c #3
+
             # calculate velocity
             dt = time.time() - time_last  #  time difference
             time_last = time.time()
 
             # reference position
-            ref_pos_1 = traj_gen.hover_test(0)
+            ref_pos_1 = traj_gen.hover_test(-1)
             ref_pos1 = ref_pos_1[0]
-            ref_pos_2 = traj_gen.hover_test(0.6)
+            ref_pos_2 = traj_gen.hover_test(0)
             ref_pos2 = ref_pos_2[0]
-            ref_pos_3 = traj_gen.hover_test(1.2)
+            ref_pos_3 = traj_gen.hover_test(1)
             ref_pos3 = ref_pos_3[0]
 
             """ ref_pos_1 = traj_gen.simple_rectangle(-1, abs_time)
@@ -257,10 +260,10 @@ if __name__ == '__main__':
             #                    )
 
             if button0 == 1:
-                # for hovering test
-                ref_pos1[2] = 0.15
-                ref_pos2[2] = 0.15
-                ref_pos3[2] = 0.15
+                """ # for hovering test
+                ref_pos1[2] = 0.1
+                ref_pos2[2] = 0.1
+                ref_pos3[2] = 0.1
                 # descend
                 att_robot_1.update(robot_1, dt, ref_pos1, z_offset)
                 att_robot_2.update(robot_2, dt, ref_pos2, z_offset)
@@ -270,13 +273,13 @@ if __name__ == '__main__':
                 cmd_att_3 = att_robot_3.get_angles_and_thrust(enable)
                 cmd_att = np.array([cmd_att_1, cmd_att_2, cmd_att_3])
                 seq_args = swarm_exe(cmd_att)
-                swarm.parallel(arm_throttle, args_dict=seq_args)
+                swarm.parallel(arm_throttle, args_dict=seq_args) """
 
-                """ # for traj 
+                # for traj or hovering test
                 cmd_att_cut = np.array([0, 0, 0, 0]) # init setpt to 0 0 0 0
                 cmd_att = np.array([cmd_att_cut,cmd_att_cut,cmd_att_cut])
                 seq_args = swarm_exe(cmd_att)
-                swarm.parallel(init_throttle, args_dict=seq_args) """
+                swarm.parallel(init_throttle, args_dict=seq_args)
 
                 print('Emergency Stopped')
                 break
