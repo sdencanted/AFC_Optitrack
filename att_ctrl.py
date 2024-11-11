@@ -33,14 +33,14 @@ class att_ctrl(object):
 
     def update(self, robot_locale, dt, ref_pos, z_offset):
         self.z_offset = z_offset
-        self.robot_pos = np.array([robot_locale[0:3]])
-        self.robot_quat = np.array([robot_locale[3:7]])
+        self.robot_pos = np.array(robot_locale[0:3])
+        self.robot_quat = np.array(robot_locale[3:7])
         self.dt = dt
         self.ref_pos = ref_pos
         self.ref_pos[2] = self.ref_pos[2] + self.z_offset
 
 
-    def info_update(self):
+    def info_update_z(self):
         ref_pos = self.ref_pos
         ref_pos[2] = ref_pos[2] - self.z_offset 
         return ref_pos
@@ -100,7 +100,7 @@ class att_ctrl(object):
         self.position_error_last = position_error
         
         # pid controller
-        robot_mg = np.array([0,0,40000]) # robot weight
+        robot_mg = np.array([0,0,45000]) # robot weight
         self.control_signal = (p_gains * position_error) + (d_gains * rate_posiition_error) + (i_gains * integral_error) + robot_mg
         
 
