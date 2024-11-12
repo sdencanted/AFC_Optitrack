@@ -100,7 +100,7 @@ class att_ctrl(object):
         self.position_error_last = position_error
         
         # pid controller
-        robot_mg = np.array([0,0,45000]) # robot weight
+        robot_mg = np.array([0,0,47500]) # robot weight
         self.control_signal = (p_gains * position_error) + (d_gains * rate_posiition_error) + (i_gains * integral_error) + robot_mg
         
 

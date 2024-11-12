@@ -21,7 +21,8 @@ from cflib.crazyflie.swarm import Swarm
 
 # robot address
 # Change uris and sequences according to your setup
-URI1 = 'radio://0/20/2M/E7E7E7E702'
+
+URI1 = 'radio://0/30/2M/E7E7E7E702'
 URI2 = 'radio://0/30/2M/E7E7E7E703'
 URI3 = 'radio://0/30/2M/E7E7E7E704'
 
@@ -35,7 +36,7 @@ def swarm_exe(cmd_att):
     seq_args = {
         URI1: [cmd_att[0]],
         URI2: [cmd_att[1]],
-        URI3: [cmd_att[2]],
+        #URI3: [cmd_att[2]],
     }
     return seq_args
 
@@ -167,7 +168,7 @@ if __name__ == '__main__':
             cmd_att_arm = np.array([0, 0, 0, conPad * 1]) # optitrack control [roll,  pitch ,  yawrate, thrust]
             cmd_att = np.array([cmd_att_arm, cmd_att_arm, cmd_att_arm])
             seq_args = swarm_exe(cmd_att)
-            #print("seq_args: ", seq_args)
+            print("seq_args: ", seq_args)
             swarm.parallel(arm_throttle, args_dict=seq_args)
             
             
