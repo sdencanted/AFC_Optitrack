@@ -36,7 +36,7 @@ def swarm_exe(cmd_att):
     seq_args = {
         URI1: [cmd_att[0]],
         URI2: [cmd_att[1]],
-        #URI3: [cmd_att[2]],
+        URI3: [cmd_att[2]],
     }
     return seq_args
 
