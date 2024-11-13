@@ -8,7 +8,7 @@ theta = np.linspace(0, 2*np.pi, 100)
 r = np.sqrt(0.5)
 
 # compute x1 and x2
-x = r*np.cos(theta)
+""" x = r*np.cos(theta)
 y = r*np.sin(theta) + 0.8
 
 # create the figure
@@ -16,4 +16,43 @@ print(np.shape(x))
 fig, ax = plt.subplots(1)
 ax.plot(x, y)
 ax.set_aspect(1)
+plt.show() """
+
+num_points = 3142
+theta = np.linspace(0, 2*np.pi, num_points) # 3142 pts for 0.1m/s
+z_1 = np.linspace(0.7, 1, num_points)
+z_2 = np.linspace(1, 1.3, num_points)
+z_3 = np.linspace(1.3, 1, num_points)
+z_4 = np.linspace(1, 0.7, num_points)
+
+
+# the radius of the circle
+r = np.sqrt(0.5)
+
+# compute x and y, starts from bottom facing positive x
+x = r*np.cos(theta) 
+y = r*np.sin(theta) + 0.8
+z = y
+
+helix_array_x = [x,x,x,x]
+helix_array_y = [y,y,y,y] 
+helix_array_z = [z_1,z_2,z_3,z_4] 
+
+
+z_1 = np.linspace(0.7, 1, num_points)
+z_2 = np.linspace(1, 1.3, num_points)
+z_3 = np.linspace(1.3, 1, num_points)
+z_4 = np.linspace(1, 0.7, num_points)
+
+helix_array_x = np.array([x,x,x,x])
+helix_array_y = np.array([y,y,y,y]) 
+helix_array_z = np.array([z_1,z_2,z_3,z_4]) 
+
+helix_array_x = helix_array_x.flat
+helix_array_y = helix_array_y.flat
+helix_array_z = helix_array_z.flat
+
+fig_a = plt.figure()
+mx = plt.axes(projection='3d')
+mx.plot3D(helix_array_x, helix_array_y, helix_array_z, 'gray')
 plt.show()

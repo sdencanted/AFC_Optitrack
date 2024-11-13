@@ -23,15 +23,15 @@ import trajectory_generator
 
 # robot address
 # Change uris and sequences according to your setup
-URI1 = 'radio://0/20/2M/E7E7E7E702'
-URI2 = 'radio://1/30/2M/E7E7E7E703'
-URI3 = 'radio://1/30/2M/E7E7E7E704'
+URI1 = 'radio://0/30/2M/E7E7E7E702'
+URI2 = 'radio://0/30/2M/E7E7E7E703'
+#URI3 = 'radio://0/30/2M/E7E7E7E704'
 
 
 uris = {
     URI1,
     URI2,
-    URI3,
+    #URI3,
 }
 
 
@@ -39,7 +39,7 @@ def swarm_exe(cmd_att):
     seq_args = {
         URI1: [cmd_att[0]],
         URI2: [cmd_att[1]],
-        URI3: [cmd_att[2]],
+        #URI3: [cmd_att[2]],
     }
     return seq_args
 
@@ -96,7 +96,7 @@ if __name__ == '__main__':
     with Swarm(uris, factory= CachedCfFactory(rw_cache='./cache')) as swarm:
         #swarm.reset_estimators()
         cmd_att_startup = np.array([0, 0, 0, 0]) # init setpt to 0 0 0 0
-        cmd_att = np.array([cmd_att_startup,cmd_att_startup,cmd_att_startup])
+        cmd_att = np.array([cmd_att_startup,cmd_att_startup])
         seq_args = swarm_exe(cmd_att)
         swarm.parallel(init_throttle, args_dict=seq_args)
 
@@ -193,31 +193,41 @@ if __name__ == '__main__':
             # in case optitrack screws up the order somehow
             robot_1 = robot_a #2
             robot_2 = robot_b #4
-            robot_3 = robot_c #3
+            #robot_3 = robot_c #3
 
             # calculate velocity
             dt = time.time() - time_last  #  time difference
             time_last = time.time()
 
             # reference position
-            ref_pos_1 = traj_gen.hover_test(-1)
+            """ ref_pos_1 = traj_gen.hover_test(-1)
             ref_pos1 = ref_pos_1[0]
             ref_pos_2 = traj_gen.hover_test(0)
             ref_pos2 = ref_pos_2[0]
-            ref_pos_3 = traj_gen.hover_test(1)
-            ref_pos3 = ref_pos_3[0]
+            #ref_pos_3 = traj_gen.hover_test(1)
+            #ref_pos3 = ref_pos_3[0] """
 
-            """ ref_pos_1 = traj_gen.simple_rectangle(-1, abs_time)
+            """ ref_pos_1 = traj_gen.elevated_rectangle(-1, abs_time)
             ref_pos1 = ref_pos_1[0]
-            ref_pos_2 = traj_gen.simple_rectangle(0, abs_time)
+            ref_pos_2 = traj_gen.elevated_rectangle(0, abs_time)
             ref_pos2 = ref_pos_2[0]
-            ref_pos_3 = traj_gen.simple_rectangle(1, abs_time)
-            ref_pos3 = ref_pos_3[0] """
+            #ref_pos_3 = traj_gen.low_alt_rectangle(1, abs_time)
+            #ref_pos3 = ref_pos_3[0] """
+
+            """ ref_pos_1 = traj_gen.simple_circle(-1, 0.5, count)
+            ref_pos1 = ref_pos_1[0]
+            ref_pos_2 = traj_gen.simple_circle(0, 0.5, count)
+            ref_pos2 = ref_pos_2[0] """
+
+            ref_pos_1 = traj_gen.helix(-1, 0.5, count)
+            ref_pos1 = ref_pos_1[0]
+            ref_pos_2 = traj_gen.helix(0, 0.5, count)
+            ref_pos2 = ref_pos_2[0]
 
             # update positions etc.
             att_robot_1.update(robot_1, dt, ref_pos1, z_offset)
             att_robot_2.update(robot_2, dt, ref_pos2, z_offset)
-            att_robot_3.update(robot_3, dt, ref_pos3, z_offset)
+            #att_robot_3.update(robot_3, dt, ref_pos3, z_offset)
 
 
             """ # control input (arming test)
@@ -228,18 +238,18 @@ if __name__ == '__main__':
             # control input (traj execution)
             cmd_att_1 = att_robot_1.get_angles_and_thrust(enable)
             cmd_att_2 = att_robot_2.get_angles_and_thrust(enable)
-            cmd_att_3 = att_robot_3.get_angles_and_thrust(enable)
-            cmd_att = np.array([cmd_att_1, cmd_att_2, cmd_att_3])
+            #cmd_att_3 = att_robot_3.get_angles_and_thrust(enable)
+            cmd_att = np.array([cmd_att_1, cmd_att_2])
             seq_args = swarm_exe(cmd_att)
             #print("seq_args: ", seq_args)
             swarm.parallel(arm_throttle, args_dict=seq_args)
             #print (ref_pos_2[1])
 
             # ref pos in array
-            total_ref_pos_z = np.array([ref_pos1[2], ref_pos2[2], ref_pos3[2]])
+            total_ref_pos_z = np.array([ref_pos1[2], ref_pos2[2]])
 
             # z feedback in array
-            total_feedback_pos_z = np.array([robot_1[2], robot_2[2], robot_3[2]])
+            total_feedback_pos_z = np.array([robot_1[2], robot_2[2]])
             
             # z error in array
             total_error_z = total_ref_pos_z - total_feedback_pos_z
@@ -249,8 +259,8 @@ if __name__ == '__main__':
                 
              #print(abs_time) # updating at 120 hz
                 print (ref_pos_1[1]) 
-                print('robot_z_position 1 2 3', total_feedback_pos_z)
-                print('robot ref pos 1 2 3', total_ref_pos_z)
+                print('robot_z_position 1 2', total_feedback_pos_z)
+                print('robot ref pos 1 2', total_ref_pos_z)
                 print('pos_z_error', total_error_z)
 
 
@@ -277,7 +287,7 @@ if __name__ == '__main__':
 
                 # for traj or hovering test
                 cmd_att_cut = np.array([0, 0, 0, 0]) # init setpt to 0 0 0 0
-                cmd_att = np.array([cmd_att_cut,cmd_att_cut,cmd_att_cut])
+                cmd_att = np.array([cmd_att_cut,cmd_att_cut])
                 seq_args = swarm_exe(cmd_att)
                 swarm.parallel(init_throttle, args_dict=seq_args)
 

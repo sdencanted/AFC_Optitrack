@@ -10,8 +10,8 @@ class trajectory_generator(object):
 
     def hover_test(self, x_offset):
         ref_x = 0
-        ref_y = 0.6
-        ref_z = 0.2
+        ref_y = 1.0
+        ref_z = 0.15
         ref_pos = np.array([ref_x+x_offset, ref_y, ref_z])
         msg = "hovering test..."
         return (ref_pos,msg)
@@ -116,7 +116,7 @@ class trajectory_generator(object):
         elif 27 <= abs_time:
             ref_x = 0
             ref_y = 0.6
-            ref_z = 0.02
+            ref_z = 0.01
             ref_pos = np.array([ref_x+x_offset, ref_y, ref_z])
             msg = "traj ended..."
 
@@ -195,7 +195,7 @@ class trajectory_generator(object):
         else:
             ref_x = x[count]
             ref_y = y[count]
-            ref_z = 0.5
+            ref_z = 1.0
             msg = "still flying..."
 
         ref_pos = np.array([ref_x, ref_y, ref_z])
@@ -224,6 +224,47 @@ class trajectory_generator(object):
             ref_x = x[count]
             ref_y = y[count]
             ref_z = z[count]
+            msg = "still flying..."
+
+        ref_pos = np.array([ref_x, ref_y, ref_z])
+
+        return (ref_pos,msg)
+    
+
+    def helix(self, x_offset, radius, count):
+        num_points = 3142
+        theta = np.linspace(0, 2*np.pi, num_points) # 3142 pts for 0.1m/s
+        z_1 = np.linspace(0.7, 1, num_points)
+        z_2 = np.linspace(1, 1.5, num_points)
+        z_3 = np.linspace(1.5, 1, num_points)
+        z_4 = np.linspace(1, 0.7, num_points)
+
+
+        # the radius of the circle
+        r = np.sqrt(radius)
+
+        # compute x and y, starts from bottom facing positive x
+        x = r*np.cos(theta) + x_offset 
+        y = r*np.sin(theta) + 0.8
+        z = y
+
+        helix_array_x = np.array([x,x,x,x])
+        helix_array_y = np.array([y,y,y,y]) 
+        helix_array_z = np.array([z_1,z_2,z_3,z_4]) 
+
+        helix_array_x = helix_array_x.flat
+        helix_array_y = helix_array_y.flat
+        helix_array_z = helix_array_z.flat
+
+        if count >= num_points*4:
+            ref_x = helix_array_x[-1]
+            ref_y = helix_array_y[-1]
+            ref_z = 0.02
+            msg = "traj ended..."
+        else:
+            ref_x = helix_array_x[count]
+            ref_y = helix_array_y[count]
+            ref_z = helix_array_z[count]
             msg = "still flying..."
 
         ref_pos = np.array([ref_x, ref_y, ref_z])

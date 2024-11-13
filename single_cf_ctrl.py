@@ -27,7 +27,7 @@ import trajectory_generator
 # radio 1
 #URI1 = 'radio://0/20/2M/E7E7E7E702'
 #URI1 = 'radio://0/30/2M/E7E7E7E703'
-URI1 = 'radio://0/30/2M/E7E7E7E702'
+URI1 = 'radio://0/30/2M/E7E7E7E703'
 
 
 
@@ -175,7 +175,7 @@ if __name__ == '__main__':
             robot_3 = [data_processor.px3, data_processor.py3, data_processor.pz3, data_processor.quat_x3, data_processor.quat_y3, data_processor.quat_z3, data_processor.quat_w3, yaw_3]
 
             #assign robot
-            robot = robot_3
+            robot = robot_2
 
             # calculate velocity
             dt = time.time() - time_last  #  time difference
@@ -184,7 +184,9 @@ if __name__ == '__main__':
             # reference position
             #ref_pos_1 = traj_gen.simple_rectangle(0, abs_time)
             #ref_pos_1 = traj_gen.simple_circle(0, 0.5, count)
-            ref_pos_1 = traj_gen.hover_test(1)
+            #ref_pos_1 = traj_gen.elevated_circle(0, 0.6, count)
+            #ref_pos_1 = traj_gen.hover_test(0)
+            ref_pos_1 = traj_gen.helix(0, 0.5, count)
             ref_pos = ref_pos_1[0]
             
             # update positions etc.
