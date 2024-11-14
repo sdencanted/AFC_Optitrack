@@ -74,9 +74,8 @@ if __name__ == '__main__':
     data_processor = Data_process_swarm.RealTimeProcessor(5, [16], 'lowpass', 'cheby2', 85, sample_rate)
 
     data_saver = DataSave.SaveData('Data_time',
-                                   'data'
-                                   )
-
+                                   'robot_1','ref_position')
+                                   
     logging.basicConfig(level=logging.ERROR)
     cflib.crtp.init_drivers()
 
@@ -89,8 +88,12 @@ if __name__ == '__main__':
     time_last = 0
     count = 0
 
-  # reference offset for z
+    # reference offset for z
     z_offset = 0.0
+
+    # rmse terms
+    rmse_num = 0
+    final_rmse = 0
     
     with Swarm(uris, factory= CachedCfFactory(rw_cache='./cache')) as swarm:
         #swarm.reset_estimators()
@@ -209,14 +212,16 @@ if __name__ == '__main__':
                 #print(abs_time) # updating at 120 hz
                 print (ref_pos_1[1]) 
                 print('robot_position', robot[0], robot[1], robot[2])
-                print('robot ref pos', ref_pos[2])
-                print('pos_error', ref_pos[2]-robot[2])
+                print('robot ref z pos', ref_pos[2])
+                print('z pos_error', ref_pos[2]-robot[2])
 
-
+            # rmse accumulation
+            rmse_num = rmse_num + (ref_pos[2]-robot[2])**2
+            
             # save data
-            #data_saver.add_item(abs_time,
-            #                    robot,
-            #                    )
+            data_saver.add_item(abs_time,
+                                robot,ref_pos
+                                )
 
             if button0 == 1:
                 """ # for hovering test
@@ -233,10 +238,11 @@ if __name__ == '__main__':
                 cmd_att = np.array([cmd_att_cut])
                 seq_args = swarm_exe(cmd_att)
                 swarm.parallel(init_throttle, args_dict=seq_args)
-                print('Emergency Stopped')
+                final_rmse = math.sqrt(rmse_num/count)
+                print('Emergency Stopped and rmse produced: ', final_rmse)
                 break
 
 # save data
-#path = '/home/emmanuel/AFC_Optitrack/robot_1/'
-#data_saver.save_data(path)
+path = '/home/emmanuel/AFC_Optitrack/robot_solo/'
+data_saver.save_data(path)
 

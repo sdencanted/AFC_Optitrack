@@ -75,13 +75,12 @@ if __name__ == '__main__':
     data_processor = Data_process_swarm.RealTimeProcessor(5, [16], 'lowpass', 'cheby2', 85, sample_rate)
 
     data_saver = DataSave.SaveData('Data_time',
-                                   'data'
-                                   )
-
+                                   'robot_1','robot_2','ref_pos1','ref_pos2')
+                                   
     logging.basicConfig(level=logging.ERROR)
     cflib.crtp.init_drivers()
 
-  # Initialize the joysticks
+    # Initialize the joysticks
     pygame.init()
     pygame.joystick.init()
     done = False
@@ -90,8 +89,17 @@ if __name__ == '__main__':
     time_last = 0
     count = 0
 
-  # reference offset for z
+    # reference offset for z
     z_offset = 0.0
+
+    # rmse terms
+    rmse_num_1 = 0
+    rmse_count_1 = 0
+    final_rmse_1 = 0
+
+    rmse_num_2 = 0
+    rmse_count_2 = 0
+    final_rmse_2 = 0
     
     with Swarm(uris, factory= CachedCfFactory(rw_cache='./cache')) as swarm:
         #swarm.reset_estimators()
@@ -263,11 +271,14 @@ if __name__ == '__main__':
                 print('robot ref pos 1 2', total_ref_pos_z)
                 print('pos_z_error', total_error_z)
 
+            # rmse accumulation
+            rmse_num_1 = rmse_num_1 + (ref_pos1[2]-robot_1[2])**2
+            rmse_num_2 = rmse_num_2 + (ref_pos2[2]-robot_2[2])**2
 
             # save data
-            #data_saver.add_item(abs_time,
-            #                    robot,
-            #                    )
+            data_saver.add_item(abs_time,
+                                robot_1,robot_2,ref_pos1,ref_pos2
+                                )
 
             if button0 == 1:
                 """ # for hovering test
@@ -290,11 +301,12 @@ if __name__ == '__main__':
                 cmd_att = np.array([cmd_att_cut,cmd_att_cut])
                 seq_args = swarm_exe(cmd_att)
                 swarm.parallel(init_throttle, args_dict=seq_args)
-
-                print('Emergency Stopped')
+                final_rmse_1 = math.sqrt(rmse_num_1/count)
+                final_rmse_2 = math.sqrt(rmse_num_1/count)
+                print('Emergency Stopped and rmse produced for drones 1 & 2: ', final_rmse_1, final_rmse_2)
                 break
 
 # save data
-#path = '/home/emmanuel/AFC_Optitrack/robot_1/'
-#data_saver.save_data(path)
+path = '/home/emmanuel/AFC_Optitrack/robot_swarm/'
+data_saver.save_data(path)
 
