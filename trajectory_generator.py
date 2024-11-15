@@ -176,8 +176,8 @@ class trajectory_generator(object):
         return (ref_pos,msg)
     
        
-    def simple_circle(self, x_offset, radius, count):
-        num_points = 3142
+    def simple_circle(self, x_offset, radius, count, speedX):
+        num_points = int(3142/speedX) # 0.1 m/s baseline over 1
         theta = np.linspace(0, 2*np.pi, num_points) # 3142 pts for 0.1m/s
 
         # the radius of the circle
@@ -185,12 +185,12 @@ class trajectory_generator(object):
 
         # compute x and y, starts from bottom facing positive x
         x = r*np.cos(theta) + x_offset 
-        y = r*np.sin(theta) + 0.8
+        y = r*np.sin(theta) + 1.2
         
         if count >= num_points:
             ref_x = x[-1]
             ref_y = y[-1]
-            ref_z = 0.02
+            ref_z = 0.2
             msg = "traj ended..."
         else:
             ref_x = x[count]
@@ -203,8 +203,8 @@ class trajectory_generator(object):
         return (ref_pos,msg)
 
 
-    def elevated_circle(self, x_offset, radius, count):
-        num_points = 3142
+    def elevated_circle(self, x_offset, radius, count, speedX):
+        num_points = int(3142/speedX) 
         theta = np.linspace(0, 2*np.pi, num_points) # 3142 pts for 0.1m/s
 
         # the radius of the circle
@@ -212,13 +212,13 @@ class trajectory_generator(object):
 
         # compute x and y, starts from bottom facing positive x
         x = r*np.cos(theta) + x_offset 
-        y = r*np.sin(theta) + 0.8
+        y = r*np.sin(theta) + 1.2
         z = y
 
         if count >= num_points:
             ref_x = x[-1]
             ref_y = y[-1]
-            ref_z = 0.02
+            ref_z = 0.2
             msg = "traj ended..."
         else:
             ref_x = x[count]
@@ -231,8 +231,8 @@ class trajectory_generator(object):
         return (ref_pos,msg)
     
 
-    def helix(self, x_offset, radius, count):
-        num_points = 3142
+    def helix(self, x_offset, radius, count, speedX):
+        num_points = int(3142/speedX) 
         theta = np.linspace(0, 2*np.pi, num_points) # 3142 pts for 0.1m/s
         z_1 = np.linspace(0.7, 1, num_points)
         z_2 = np.linspace(1, 1.5, num_points)
@@ -245,7 +245,7 @@ class trajectory_generator(object):
 
         # compute x and y, starts from bottom facing positive x
         x = r*np.cos(theta) + x_offset 
-        y = r*np.sin(theta) + 0.8
+        y = r*np.sin(theta) + 1.2
         z = y
 
         helix_array_x = np.array([x,x,x,x])
@@ -259,7 +259,7 @@ class trajectory_generator(object):
         if count >= num_points*4:
             ref_x = helix_array_x[-1]
             ref_y = helix_array_y[-1]
-            ref_z = 0.02
+            ref_z = 0.2
             msg = "traj ended..."
         else:
             ref_x = helix_array_x[count]

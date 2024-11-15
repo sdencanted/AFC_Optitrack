@@ -23,7 +23,7 @@ import trajectory_generator
 
 # robot address
 # Change uris and sequences according to your setup
-URI1 = 'radio://0/30/2M/E7E7E7E702'
+URI1 = 'radio://0/20/2M/E7E7E7E702'
 URI2 = 'radio://0/30/2M/E7E7E7E703'
 #URI3 = 'radio://0/30/2M/E7E7E7E704'
 
@@ -222,14 +222,14 @@ if __name__ == '__main__':
             #ref_pos_3 = traj_gen.low_alt_rectangle(1, abs_time)
             #ref_pos3 = ref_pos_3[0] """
 
-            """ ref_pos_1 = traj_gen.simple_circle(-1, 0.5, count)
+            """ ref_pos_1 = traj_gen.simple_circle(-1, 0.2, count, 5)
             ref_pos1 = ref_pos_1[0]
-            ref_pos_2 = traj_gen.simple_circle(0, 0.5, count)
+            ref_pos_2 = traj_gen.simple_circle(0.5, 0.2, count, 5)
             ref_pos2 = ref_pos_2[0] """
 
-            ref_pos_1 = traj_gen.helix(-1, 0.5, count)
+            ref_pos_1 = traj_gen.helix(-1, 0.15, count, 5)
             ref_pos1 = ref_pos_1[0]
-            ref_pos_2 = traj_gen.helix(0, 0.5, count)
+            ref_pos_2 = traj_gen.helix(0.5, 0.15, count, 5)
             ref_pos2 = ref_pos_2[0]
 
             # update positions etc.
@@ -302,7 +302,7 @@ if __name__ == '__main__':
                 seq_args = swarm_exe(cmd_att)
                 swarm.parallel(init_throttle, args_dict=seq_args)
                 final_rmse_1 = math.sqrt(rmse_num_1/count)
-                final_rmse_2 = math.sqrt(rmse_num_1/count)
+                final_rmse_2 = math.sqrt(rmse_num_2/count)
                 print('Emergency Stopped and rmse produced for drones 1 & 2: ', final_rmse_1, final_rmse_2)
                 break
 

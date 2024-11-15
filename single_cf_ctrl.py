@@ -109,7 +109,7 @@ if __name__ == '__main__':
         # team 1
         kpz_1 = 20
         kdz_1 = 10
-        kiz_1 = 0.001
+        kiz_1 = 1
         z_gains_1 = np.array([kpz_1*1000, kdz_1*1000, kiz_1])
         att_robot_1 = att_ctrl.att_ctrl(z_gains_1)
                
@@ -186,10 +186,12 @@ if __name__ == '__main__':
 
             # reference position
             #ref_pos_1 = traj_gen.simple_rectangle(0, abs_time)
-            #ref_pos_1 = traj_gen.simple_circle(0, 0.5, count)
+            #ref_pos_1 = traj_gen.simple_circle(0, 0.25, count, 5)
             #ref_pos_1 = traj_gen.elevated_circle(0, 0.6, count)
             #ref_pos_1 = traj_gen.hover_test(0)
-            ref_pos_1 = traj_gen.helix(0, 0.5, count)
+            ref_pos_1 = traj_gen.helix(0, 0.2, count, 5)
+            
+            
             ref_pos = ref_pos_1[0]
             
             # update positions etc.
