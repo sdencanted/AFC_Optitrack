@@ -128,4 +128,42 @@ class att_ctrl(object):
         final_cmd = np.array([des_roll, des_pitch, 0, enable*des_thrust])
 
         return (final_cmd)
+    
+
+    """ def jerk_body_rate_loop(self,ref_jerk):
+        wy = ref_jerk[0]/(-1*self.cmd_z)
+        wx = ref_jerk[1]/self.cmd_z
+        wz = 0
+        des_bod_rates = np.array([wx,wy,wz]) # flattened array abt x y z
+        self.cmd_bod_rates = self.kpr*(des_bod_rates - self.last_angular_rate)
+        return self.cmd_bod_rates
+    
+
+    def snap_body_rate_rate_ff(self,ref_snap):
+        dot_wy = ref_snap[0]/(-1*self.cmd_z)
+        dot_wx = ref_snap[1]/self.cmd_z
+        dot_wz = 0
+        self.ff_snap = np.array([dot_wx,dot_wy,dot_wz]) # flattened array abt x y z
+        return self.ff_snap
+    
+    
+    def INDI_loop(self):
+        # INDI body rate rates
+        self.kpang = np.array([1.0, 1.0, 1.0]) # 3,: flattened form
+        self.kdang = np.array([0, 0, 0]) # 3,: flattened form
+        self.kiang = np.array([0, 0, 0]) # 3,: flattened form
+
+        # commanded inputs
+        self.cmd_att = np.array([0, 0, 0]) # attitude
+        self.cmd_bod_rates = np.array([0, 0, 0]) # body rates
+        self.ff_snap = np.array([0, 0, 0]) # ff snap
+        self.cmd_bod_rates_rates = np.array([0, 0, 0]) # body rate rates
+
+        
+        if self.mode == 1:
+           self.cmd_bod_rates_rates = self.kpang*(self.cmd_att - self.last_angular_rate_rate)
+        elif self.mode == 3:
+            self.cmd_bod_rates_rates = self.kpang*(((self.cmd_att + self.cmd_bod_rates + self.ff_snap)/3) - self.last_angular_rate_rate) 
+        self.cmd_bod_rates_rates = self.MOI*self.cmd_bod_rates_rates
+        return self.cmd_bod_rates_rates """
 

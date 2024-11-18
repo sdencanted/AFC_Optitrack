@@ -23,23 +23,22 @@ import trajectory_generator
 
 # robot address
 # Change uris and sequences according to your setup
-URI1 = 'radio://0/20/2M/E7E7E7E702'
-URI2 = 'radio://0/30/2M/E7E7E7E703'
-#URI3 = 'radio://0/30/2M/E7E7E7E704'
+
+# radio 1
+#URI1 = 'radio://0/20/2M/E7E7E7E702'
+#URI1 = 'radio://0/30/2M/E7E7E7E703'
+URI1 = 'radio://0/30/2M/E7E7E7E703'
+
 
 
 uris = {
     URI1,
-    URI2,
-    #URI3,
 }
 
 
 def swarm_exe(cmd_att):
     seq_args = {
         URI1: [cmd_att[0]],
-        URI2: [cmd_att[1]],
-        #URI3: [cmd_att[2]],
     }
     return seq_args
 
@@ -75,12 +74,12 @@ if __name__ == '__main__':
     data_processor = Data_process_swarm.RealTimeProcessor(5, [16], 'lowpass', 'cheby2', 85, sample_rate)
 
     data_saver = DataSave.SaveData('Data_time',
-                                   'robot_1','robot_2','ref_pos1','ref_pos2')
+                                   'robot_1','ref_position')
                                    
     logging.basicConfig(level=logging.ERROR)
     cflib.crtp.init_drivers()
 
-    # Initialize the joysticks
+  # Initialize the joysticks
     pygame.init()
     pygame.joystick.init()
     done = False
@@ -93,18 +92,17 @@ if __name__ == '__main__':
     z_offset = 0.0
 
     # rmse terms
-    rmse_num_1 = 0
-    rmse_count_1 = 0
-    final_rmse_1 = 0
+    rmse_num = 0
+    final_rmse = 0
 
-    rmse_num_2 = 0
-    rmse_count_2 = 0
-    final_rmse_2 = 0
+    # omega and omega_dot terms for robot
+    last_robot = [0, 0, 0, 0, 0, 0, 0, 0]
+    last_robot_dot = [0, 0, 0, 0, 0, 0, 0, 0]
     
     with Swarm(uris, factory= CachedCfFactory(rw_cache='./cache')) as swarm:
         #swarm.reset_estimators()
         cmd_att_startup = np.array([0, 0, 0, 0]) # init setpt to 0 0 0 0
-        cmd_att = np.array([cmd_att_startup,cmd_att_startup])
+        cmd_att = np.array([cmd_att_startup])
         seq_args = swarm_exe(cmd_att)
         swarm.parallel(init_throttle, args_dict=seq_args)
 
@@ -115,25 +113,10 @@ if __name__ == '__main__':
         # team 1
         kpz_1 = 20
         kdz_1 = 10
-        kiz_1 = 0.001
+        kiz_1 = 1
         z_gains_1 = np.array([kpz_1*1000, kdz_1*1000, kiz_1])
         att_robot_1 = att_ctrl.att_ctrl(z_gains_1)
-        
-        
-        # team 2
-        kpz_2 = 20
-        kdz_2 = 10
-        kiz_2 = 0.001
-        z_gains_2 = np.array([kpz_2*1000, kdz_2*1000, kiz_2])
-        att_robot_2 = att_ctrl.att_ctrl(z_gains_2)
-        
-        # team 3
-        kpz_3 = 20
-        kdz_3 = 10
-        kiz_3 = 0.001
-        z_gains_3 = np.array([kpz_3*1000, kdz_3*1000, kiz_3])
-        att_robot_3 = att_ctrl.att_ctrl(z_gains_3)
-        
+               
 
         time_start = time.time()
         time_end = time.time() + 6000
@@ -194,49 +177,29 @@ if __name__ == '__main__':
             yaw_3 = data_processor.get_heading_x3()
 
             # position feedback
-            robot_a = [data_processor.px1, data_processor.py1, data_processor.pz1, data_processor.quat_x1, data_processor.quat_y1, data_processor.quat_z1, data_processor.quat_w1, yaw_1]
-            robot_b = [data_processor.px2, data_processor.py2, data_processor.pz2, data_processor.quat_x2, data_processor.quat_y2, data_processor.quat_z2, data_processor.quat_w2, yaw_2]
-            robot_c = [data_processor.px3, data_processor.py3, data_processor.pz3, data_processor.quat_x3, data_processor.quat_y3, data_processor.quat_z3, data_processor.quat_w3, yaw_3]
+            robot_1 = [data_processor.px1, data_processor.py1, data_processor.pz1, data_processor.quat_x1, data_processor.quat_y1, data_processor.quat_z1, data_processor.quat_w1, yaw_1]
+            robot_2 = [data_processor.px2, data_processor.py2, data_processor.pz2, data_processor.quat_x2, data_processor.quat_y2, data_processor.quat_z2, data_processor.quat_w2, yaw_2]
+            robot_3 = [data_processor.px3, data_processor.py3, data_processor.pz3, data_processor.quat_x3, data_processor.quat_y3, data_processor.quat_z3, data_processor.quat_w3, yaw_3]
 
-            # in case optitrack screws up the order somehow
-            robot_1 = robot_a #2
-            robot_2 = robot_b #4
-            #robot_3 = robot_c #3
+            # assign robot
+            robot = robot_2
 
             # calculate velocity
             dt = time.time() - time_last  #  time difference
             time_last = time.time()
 
             # reference position
-            """ ref_pos_1 = traj_gen.hover_test(-1)
-            ref_pos1 = ref_pos_1[0]
-            ref_pos_2 = traj_gen.hover_test(0)
-            ref_pos2 = ref_pos_2[0]
-            #ref_pos_3 = traj_gen.hover_test(1)
-            #ref_pos3 = ref_pos_3[0] """
-
-            """ ref_pos_1 = traj_gen.elevated_rectangle(-1, abs_time)
-            ref_pos1 = ref_pos_1[0]
-            ref_pos_2 = traj_gen.elevated_rectangle(0, abs_time)
-            ref_pos2 = ref_pos_2[0]
-            #ref_pos_3 = traj_gen.low_alt_rectangle(1, abs_time)
-            #ref_pos3 = ref_pos_3[0] """
-
-            """ ref_pos_1 = traj_gen.simple_circle(-1, 0.15, count, 5)
-            ref_pos1 = ref_pos_1[0]
-            ref_pos_2 = traj_gen.simple_circle(0.5, 0.15, count, 5)
-            ref_pos2 = ref_pos_2[0] """
-
-            ref_pos_1 = traj_gen.helix(-1, 0.15, count, 5)
-            ref_pos1 = ref_pos_1[0]
-            ref_pos_2 = traj_gen.helix(0.5, 0.15, count, 5)
-            ref_pos2 = ref_pos_2[0]
-
+            #ref_pos_1 = traj_gen.simple_rectangle(0, abs_time)
+            #ref_pos_1 = traj_gen.simple_circle(0, 0.25, count, 5)
+            #ref_pos_1 = traj_gen.elevated_circle(0, 0.6, count)
+            #ref_pos_1 = traj_gen.hover_test(0)
+            ref_pos_1 = traj_gen.helix(0, 0.2, count, 5)
+            
+            
+            ref_pos = ref_pos_1[0]
+            
             # update positions etc.
-            att_robot_1.update(robot_1, dt, ref_pos1, z_offset)
-            att_robot_2.update(robot_2, dt, ref_pos2, z_offset)
-            #att_robot_3.update(robot_3, dt, ref_pos3, z_offset)
-
+            att_robot_1.update(robot, dt, ref_pos, z_offset)
 
             """ # control input (arming test)
             cmd_att_arm = np.array([0, 0, 0, conPad * 1]) # optitrack control [roll,  pitch ,  yawrate, thrust]
@@ -245,68 +208,47 @@ if __name__ == '__main__':
             
             # control input (traj execution)
             cmd_att_1 = att_robot_1.get_angles_and_thrust(enable)
-            cmd_att_2 = att_robot_2.get_angles_and_thrust(enable)
-            #cmd_att_3 = att_robot_3.get_angles_and_thrust(enable)
-            cmd_att = np.array([cmd_att_1, cmd_att_2])
+            cmd_att = np.array([cmd_att_1])
             seq_args = swarm_exe(cmd_att)
-            #print("seq_args: ", seq_args)
             swarm.parallel(arm_throttle, args_dict=seq_args)
-            #print (ref_pos_2[1])
-
-            # ref pos in array
-            total_ref_pos_z = np.array([ref_pos1[2], ref_pos2[2]])
-
-            # z feedback in array
-            total_feedback_pos_z = np.array([robot_1[2], robot_2[2]])
-            
-            # z error in array
-            total_error_z = total_ref_pos_z - total_feedback_pos_z
 
             count = count + 1
             if count % 10 == 0:
                 
-             #print(abs_time) # updating at 120 hz
+                #print(abs_time) # updating at 120 hz
                 print (ref_pos_1[1]) 
-                print('robot_z_position 1 2', total_feedback_pos_z)
-                print('robot ref pos 1 2', total_ref_pos_z)
-                print('pos_z_error', total_error_z)
+                print('robot_position', robot[0], robot[1], robot[2])
+                print('robot ref z pos', ref_pos[2])
+                print('z pos_error', ref_pos[2]-robot[2])
 
             # rmse accumulation
-            rmse_num_1 = rmse_num_1 + (ref_pos1[2]-robot_1[2])**2
-            rmse_num_2 = rmse_num_2 + (ref_pos2[2]-robot_2[2])**2
-
+            rmse_num = rmse_num + (ref_pos[2]-robot[2])**2
+            
             # save data
             data_saver.add_item(abs_time,
-                                robot_1,robot_2,ref_pos1,ref_pos2
+                                robot,ref_pos
                                 )
 
             if button0 == 1:
                 """ # for hovering test
-                ref_pos1[2] = 0.1
-                ref_pos2[2] = 0.1
-                ref_pos3[2] = 0.1
+                ref_pos[2] = 0.15
                 # descend
-                att_robot_1.update(robot_1, dt, ref_pos1, z_offset)
-                att_robot_2.update(robot_2, dt, ref_pos2, z_offset)
-                att_robot_3.update(robot_3, dt, ref_pos3, z_offset)
+                att_robot_1.update(robot, dt, ref_pos, z_offset)
                 cmd_att_1 = att_robot_1.get_angles_and_thrust(enable)
-                cmd_att_2 = att_robot_2.get_angles_and_thrust(enable)
-                cmd_att_3 = att_robot_3.get_angles_and_thrust(enable)
-                cmd_att = np.array([cmd_att_1, cmd_att_2, cmd_att_3])
+                cmd_att = np.array([cmd_att_1])
                 seq_args = swarm_exe(cmd_att)
                 swarm.parallel(arm_throttle, args_dict=seq_args) """
 
-                # for traj or hovering test
+                # for traj 
                 cmd_att_cut = np.array([0, 0, 0, 0]) # init setpt to 0 0 0 0
-                cmd_att = np.array([cmd_att_cut,cmd_att_cut])
+                cmd_att = np.array([cmd_att_cut])
                 seq_args = swarm_exe(cmd_att)
                 swarm.parallel(init_throttle, args_dict=seq_args)
-                final_rmse_1 = math.sqrt(rmse_num_1/count)
-                final_rmse_2 = math.sqrt(rmse_num_2/count)
-                print('Emergency Stopped and rmse produced for drones 1 & 2: ', final_rmse_1, final_rmse_2)
+                final_rmse = math.sqrt(rmse_num/count)
+                print('Emergency Stopped and rmse produced: ', final_rmse)
                 break
 
 # save data
-path = '/home/emmanuel/AFC_Optitrack/robot_swarm/'
+path = '/home/emmanuel/AFC_Optitrack/robot_solo/'
 data_saver.save_data(path)
 
