@@ -208,6 +208,9 @@ if __name__ == '__main__':
             
             # control input (traj execution)
             cmd_att_1 = att_robot_1.get_angles_and_thrust(enable)
+
+            # jerk enabler
+            
             cmd_att = np.array([cmd_att_1])
             seq_args = swarm_exe(cmd_att)
             swarm.parallel(arm_throttle, args_dict=seq_args)

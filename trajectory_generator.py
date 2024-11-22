@@ -1,6 +1,7 @@
 import math
 import numpy as np
 import numpy.linalg as la
+import minsnap_trajectories as ms
 
 
 class trajectory_generator(object):
@@ -175,13 +176,95 @@ class trajectory_generator(object):
 
         return (ref_pos,msg)
     
-       
-    def simple_circle(self, x_offset, radius, count, speedX):
-        num_points = int(3142/speedX) # 0.1 m/s baseline over 1
-        theta = np.linspace(0, 2*np.pi, num_points) # 3142 pts for 0.1m/s
+
+    def jerk_snap_9pt_circle(self,radius,x_offset,speedX):
+
+        # theta goes from 0 to 2pi
+        parts = 9 # octagon
+        theta = np.linspace(0, 2*np.pi, parts)
 
         # the radius of the circle
-        r = np.sqrt(radius)
+        r = radius
+        circumference = 2*np.pi*r
+        total_time = (circumference/0.1)/speedX
+        num_points = int((circumference/0.1)*100) # 0.1 m/s baseline 
+        num_points = int(num_points/speedX) # 0.1 m/s baseline
+
+
+        # compute x1 and x2
+        x = r*np.cos(theta) + x_offset
+        y = r*np.sin(theta) + 1.2
+
+
+        refs = [
+            ms.Waypoint(
+                time=(total_time/(parts-1))*0,
+                position=np.array([x[0], y[0], 1.0]),
+            ),
+            ms.Waypoint(
+                time=(total_time/(parts-1))*1,
+                position=np.array([x[1], y[1], 1.0]),
+            ),
+            ms.Waypoint(
+                time=(total_time/(parts-1))*2,
+                position=np.array([x[2], y[2], 1.0]),
+            ),
+            ms.Waypoint(
+                time=(total_time/(parts-1))*3,
+                position=np.array([x[3], y[3], 1.0]),
+            ),
+            ms.Waypoint(
+                time=(total_time/(parts-1))*4,
+                position=np.array([x[4], y[4], 1.0]),
+            ),
+            ms.Waypoint(
+                time=(total_time/(parts-1))*5,
+                position=np.array([x[5], y[5], 1.0]),
+            ),
+            ms.Waypoint(
+                time=(total_time/(parts-1))*6,
+                position=np.array([x[6], y[6], 1.0]),
+            ),
+            ms.Waypoint(
+                time=(total_time/(parts-1))*7,
+                position=np.array([x[7], y[7], 1.0]),
+            ),
+            ms.Waypoint(
+                time=(total_time/(parts-1))*8,
+                position=np.array([x[8], y[8], 1.0]),
+            ),
+        ]
+
+
+        polys = ms.generate_trajectory(
+                refs,
+                degree=8,  # Polynomial degree
+                idx_minimized_orders=(3, 4),  
+                num_continuous_orders=3,  
+                algorithm="closed-form",  # Or "constrained"
+            )
+
+
+        t = np.linspace(0, total_time, num_points)
+        # Sample up to the 3rd order (Jerk) -----v
+        pva = ms.compute_trajectory_derivatives(polys, t, 6) # up to order of derivatives is 6
+        pos = np.array([pva[0,:,0],pva[0,:,1],pva[0,:,2]]) # position
+        vel = np.array([pva[1,:,0],pva[1,:,1],pva[1,:,2]]) # velocity
+        acc = np.array([pva[2,:,0],pva[2,:,1],pva[2,:,2]]) # acceleration
+        jer = np.array([pva[3,:,0],pva[3,:,1],pva[3,:,2]]) # jerk
+        sna = np.array([pva[4,:,0],pva[4,:,1],pva[4,:,2]]) # snap
+
+        return (pos,vel,acc,jer,sna)
+        
+ 
+    def simple_circle(self, x_offset, radius, count, speedX):
+        circumference = 2*np.pi*radius
+        num_points = int((circumference/0.1)*100) # 0.1 m/s baseline over 1
+        num_points = int(num_points/speedX) # 0.1 m/s baseline over 1
+        theta = np.linspace(0, 2*np.pi, num_points) 
+
+        # the radius of the circle
+        r = radius
 
         # compute x and y, starts from bottom facing positive x
         x = r*np.cos(theta) + x_offset 
@@ -204,11 +287,13 @@ class trajectory_generator(object):
 
 
     def elevated_circle(self, x_offset, radius, count, speedX):
-        num_points = int(3142/speedX) 
-        theta = np.linspace(0, 2*np.pi, num_points) # 3142 pts for 0.1m/s
+        circumference = 2*np.pi*radius
+        num_points = int((circumference/0.1)*100) # 0.1 m/s baseline over 1
+        num_points = int(num_points/speedX) # 0.1 m/s baseline over 1
+        theta = np.linspace(0, 2*np.pi, num_points) 
 
         # the radius of the circle
-        r = np.sqrt(radius)
+        r = radius
 
         # compute x and y, starts from bottom facing positive x
         x = r*np.cos(theta) + x_offset 
@@ -232,8 +317,10 @@ class trajectory_generator(object):
     
 
     def helix(self, x_offset, radius, count, speedX):
-        num_points = int(3142/speedX) 
-        theta = np.linspace(0, 2*np.pi, num_points) # 3142 pts for 0.1m/s
+        circumference = 2*np.pi*radius
+        num_points = int((circumference/0.1)*100) # 0.1 m/s baseline over 1
+        num_points = int(num_points/speedX) # 0.1 m/s baseline over 1
+        theta = np.linspace(0, 2*np.pi, num_points) 
         z_1 = np.linspace(0.7, 1, num_points)
         z_2 = np.linspace(1, 1.5, num_points)
         z_3 = np.linspace(1.5, 1, num_points)
@@ -241,7 +328,7 @@ class trajectory_generator(object):
 
 
         # the radius of the circle
-        r = np.sqrt(radius)
+        r = radius
 
         # compute x and y, starts from bottom facing positive x
         x = r*np.cos(theta) + x_offset 

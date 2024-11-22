@@ -222,14 +222,14 @@ if __name__ == '__main__':
             #ref_pos_3 = traj_gen.low_alt_rectangle(1, abs_time)
             #ref_pos3 = ref_pos_3[0] """
 
-            """ ref_pos_1 = traj_gen.simple_circle(-1, 0.15, count, 5)
+            """ ref_pos_1 = traj_gen.simple_circle(-1, 0.4, count, 5)
             ref_pos1 = ref_pos_1[0]
-            ref_pos_2 = traj_gen.simple_circle(0.5, 0.15, count, 5)
+            ref_pos_2 = traj_gen.simple_circle(0.5, 0.4, count, 5)
             ref_pos2 = ref_pos_2[0] """
 
-            ref_pos_1 = traj_gen.helix(-1, 0.15, count, 5)
+            ref_pos_1 = traj_gen.helix(-1, 0.4, count, 5)
             ref_pos1 = ref_pos_1[0]
-            ref_pos_2 = traj_gen.helix(0.5, 0.15, count, 5)
+            ref_pos_2 = traj_gen.helix(0.5, 0.4, count, 5)
             ref_pos2 = ref_pos_2[0]
 
             # update positions etc.
