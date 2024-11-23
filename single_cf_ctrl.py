@@ -189,7 +189,7 @@ if __name__ == '__main__':
             #ref_pos_1 = traj_gen.simple_circle(0, 0.25, count, 5)
             #ref_pos_1 = traj_gen.elevated_circle(0, 0.6, count)
             #ref_pos_1 = traj_gen.hover_test(0)
-            ref_pos_1 = traj_gen.helix(0, 0.2, count, 5)
+            ref_pos_1 = traj_gen.helix(0, 0.4, count, 5)
             
             
             ref_pos = ref_pos_1[0]

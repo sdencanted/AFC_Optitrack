@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import minsnap_trajectories as ms
 import trajectory_generator
+from pyrr import quaternion
 
 
 # theta goes from 0 to 2pi
@@ -96,20 +97,20 @@ jerk_y = pva[3,:,1] # jerk
 snap_y = pva[4,:,1] # snap
 
 
-
+#qz = quaternion.create(0, 0, 0, 0.99)
 # create the figure
 print("original x coordinates: ", x)
 traj_gen = trajectory_generator.trajectory_generator()
-derivatives = traj_gen.jerk_snap_9pt_circle(0.5,0,1)
-pos_x = derivatives[0][0][:]
-pos_y = derivatives[0][1][:]
+derivatives = traj_gen.jerk_snap_9pt_circle(0.5,0,0,1)
+pos = derivatives[0]
 
-print (np.shape(derivatives))
-print(np.shape(pos_x))
-fig, ax = plt.subplots(1)
-ax.plot(pos_x, pos_y)
-ax.set_aspect(1)
-plt.show()
+
+print (len(derivatives))
+print(np.shape(pos))
+#fig, ax = plt.subplots(1)
+#ax.plot(pos_x, pos_y)
+#ax.set_aspect(1)
+#plt.show()
 
 
 

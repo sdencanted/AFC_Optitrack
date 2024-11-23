@@ -92,8 +92,12 @@ if __name__ == '__main__':
     z_offset = 0.0
 
     # rmse terms
-    rmse_num = 0
-    final_rmse = 0
+    rmse_num_x = 0
+    final_rmse_x = 0
+    rmse_num_y = 0
+    final_rmse_y = 0
+    rmse_num_z = 0
+    final_rmse_z = 0
 
     # omega and omega_dot terms for robot
     last_robot = [0, 0, 0, 0, 0, 0, 0, 0]
@@ -193,11 +197,18 @@ if __name__ == '__main__':
             #ref_pos_1 = traj_gen.simple_circle(0, 0.25, count, 5)
             #ref_pos_1 = traj_gen.elevated_circle(0, 0.6, count)
             #ref_pos_1 = traj_gen.hover_test(0)
-            ref_pos_1 = traj_gen.helix(0, 0.2, count, 5)
             
+            #ref_pos_1 = traj_gen.helix(0, 0.4, count, 5)
+            #ref_pos = ref_pos_1[0]
             
-            ref_pos = ref_pos_1[0]
-            
+            ref_derivatives = traj_gen.jerk_snap_9pt_circle(0, 0.4, count, 5)
+            ref_pos = ref_derivatives[0]
+            ref_vel = ref_derivatives[1]
+            ref_acc = ref_derivatives[2]
+            ref_jerk = ref_derivatives[3]
+            ref_snap = ref_derivatives[4]
+            ref_msg = ref_derivatives[5]
+
             # update positions etc.
             att_robot_1.update(robot, dt, ref_pos, z_offset)
 
@@ -209,9 +220,13 @@ if __name__ == '__main__':
             # control input (traj execution)
             cmd_att_1 = att_robot_1.get_angles_and_thrust(enable)
 
-            # jerk enabler
+
+            # feedforward terms
+            ff_jerk_1 = att_robot_1.include_jerk_bod_rates(ref_jerk)
+            ff_snap_1 = att_robot_1.include_snap_bod_raterate(ref_snap)
+
             
-            cmd_att = np.array([cmd_att_1])
+            cmd_att = np.array([cmd_att_1 + ff_jerk_1 + ff_snap_1])
             seq_args = swarm_exe(cmd_att)
             swarm.parallel(arm_throttle, args_dict=seq_args)
 
@@ -219,13 +234,14 @@ if __name__ == '__main__':
             if count % 10 == 0:
                 
                 #print(abs_time) # updating at 120 hz
-                print (ref_pos_1[1]) 
+                print (ref_msg) 
                 print('robot_position', robot[0], robot[1], robot[2])
-                print('robot ref z pos', ref_pos[2])
-                print('z pos_error', ref_pos[2]-robot[2])
+                print('pos_error', ref_pos[0]-robot[0], ref_pos[1]-robot[1], ref_pos[2]-robot[2])
 
             # rmse accumulation
-            rmse_num = rmse_num + (ref_pos[2]-robot[2])**2
+            rmse_num_x = rmse_num_x + (ref_pos[0]-robot[0])**2
+            rmse_num_y = rmse_num_y + (ref_pos[1]-robot[1])**2
+            rmse_num_z = rmse_num_z + (ref_pos[2]-robot[2])**2
             
             # save data
             data_saver.add_item(abs_time,
@@ -247,11 +263,14 @@ if __name__ == '__main__':
                 cmd_att = np.array([cmd_att_cut])
                 seq_args = swarm_exe(cmd_att)
                 swarm.parallel(init_throttle, args_dict=seq_args)
-                final_rmse = math.sqrt(rmse_num/count)
-                print('Emergency Stopped and rmse produced: ', final_rmse)
+                final_rmse_x = math.sqrt(rmse_num_x/count)
+                final_rmse_y = math.sqrt(rmse_num_y/count)
+                final_rmse_z = math.sqrt(rmse_num_z/count)
+                final_rmse = la.norm([final_rmse_x, final_rmse_y, final_rmse_z], 2)
+                print('Emergency Stopped and final rmse produced: ', final_rmse)
                 break
 
 # save data
-path = '/home/emmanuel/AFC_Optitrack/robot_solo/'
-data_saver.save_data(path)
+#path = '/home/emmanuel/AFC_Optitrack/jerk_snap/'
+#data_saver.save_data(path)
 

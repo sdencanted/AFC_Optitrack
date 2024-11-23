@@ -177,8 +177,7 @@ class trajectory_generator(object):
         return (ref_pos,msg)
     
 
-    def jerk_snap_9pt_circle(self,radius,x_offset,speedX):
-
+    def jerk_snap_9pt_circle(self,radius,x_offset,count,speedX):
         # theta goes from 0 to 2pi
         parts = 9 # octagon
         theta = np.linspace(0, 2*np.pi, parts)
@@ -248,13 +247,34 @@ class trajectory_generator(object):
         t = np.linspace(0, total_time, num_points)
         # Sample up to the 3rd order (Jerk) -----v
         pva = ms.compute_trajectory_derivatives(polys, t, 6) # up to order of derivatives is 6
-        pos = np.array([pva[0,:,0],pva[0,:,1],pva[0,:,2]]) # position
-        vel = np.array([pva[1,:,0],pva[1,:,1],pva[1,:,2]]) # velocity
-        acc = np.array([pva[2,:,0],pva[2,:,1],pva[2,:,2]]) # acceleration
-        jer = np.array([pva[3,:,0],pva[3,:,1],pva[3,:,2]]) # jerk
-        sna = np.array([pva[4,:,0],pva[4,:,1],pva[4,:,2]]) # snap
+        all_pos = np.array([pva[0,:,0],pva[0,:,1],pva[0,:,2]]) # position
+        all_vel = np.array([pva[1,:,0],pva[1,:,1],pva[1,:,2]]) # velocity
+        all_acc = np.array([pva[2,:,0],pva[2,:,1],pva[2,:,2]]) # acceleration
+        all_jer = np.array([pva[3,:,0],pva[3,:,1],pva[3,:,2]]) # jerk
+        all_sna = np.array([pva[4,:,0],pva[4,:,1],pva[4,:,2]]) # snap
 
-        return (pos,vel,acc,jer,sna)
+        if count >= num_points:
+            ref_pos = np.array([pva[0,-1,0],pva[0,-1,1],pva[0,-1,2]]) # position
+            ref_vel = np.array([pva[1,-1,0],pva[1,-1,1],pva[1,-1,2]]) # velocity
+            ref_acc = np.array([pva[2,-1,0],pva[2,-1,1],pva[2,-1,2]]) # acceleration
+            ref_jer = np.array([pva[3,-1,0],pva[3,-1,1],pva[3,-1,2]]) # jerk
+            ref_sna = np.array([pva[4,-1,0],pva[4,-1,1],pva[4,-1,2]]) # snap
+            msg = "traj ended..."
+        else:
+            ref_pos = np.array([pva[0,count,0],pva[0,count,1],pva[0,count,2]]) # ref position
+            ref_vel = np.array([pva[1,count,0],pva[1,count,1],pva[1,count,2]]) # ref velocity
+            ref_acc = np.array([pva[2,count,0],pva[2,count,1],pva[2,count,2]]) # ref acceleration
+            ref_jer = np.array([pva[3,count,0],pva[3,count,1],pva[3,count,2]]) # ref jerk
+            ref_sna = np.array([pva[4,count,0],pva[4,count,1],pva[4,count,2]]) # ref snap
+            msg = "still flying..."
+        
+        ref_pos = list(ref_pos.flat)
+        ref_vel = list(ref_vel.flat)
+        ref_acc = list(ref_acc.flat)    
+        ref_jer = list(ref_jer.flat)
+        ref_sna = list(ref_sna.flat)
+
+        return (ref_pos,ref_vel,ref_acc,ref_jer,ref_sna,msg)
         
  
     def simple_circle(self, x_offset, radius, count, speedX):
