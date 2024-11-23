@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 import minsnap_trajectories as ms
 import trajectory_generator
 from pyrr import quaternion
+import timeit
+
+start = timeit.default_timer()
 
 
 # theta goes from 0 to 2pi
@@ -153,3 +156,6 @@ fig_a = plt.figure()
 mx = plt.axes(projection='3d')
 mx.plot3D(helix_array_x, helix_array_y, helix_array_z, 'gray')
 plt.show() """
+
+stop = timeit.default_timer()
+print('Program Runtime: ', stop - start)  
