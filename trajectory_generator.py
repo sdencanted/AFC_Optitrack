@@ -177,7 +177,7 @@ class trajectory_generator(object):
         return (ref_pos,msg)
     
 
-    def jerk_snap_9pt_circle(self,radius,x_offset,count,speedX):
+    def compute_jerk_snap_9pt_circle(self, x_offset, radius, speedX):
         # theta goes from 0 to 2pi
         parts = 9 # octagon
         theta = np.linspace(0, 2*np.pi, parts)
@@ -234,7 +234,6 @@ class trajectory_generator(object):
             ),
         ]
 
-
         polys = ms.generate_trajectory(
                 refs,
                 degree=8,  # Polynomial degree
@@ -243,10 +242,13 @@ class trajectory_generator(object):
                 algorithm="closed-form",  # Or "constrained"
             )
 
-
         t = np.linspace(0, total_time, num_points)
         # Sample up to the 3rd order (Jerk) -----v
         pva = ms.compute_trajectory_derivatives(polys, t, 6) # up to order of derivatives is 6
+        return (pva,num_points)
+
+
+    def jerk_snap_9pt_circle(self, pva, num_points, count, landing_hgt):
         all_pos = np.array([pva[0,:,0],pva[0,:,1],pva[0,:,2]]) # position
         all_vel = np.array([pva[1,:,0],pva[1,:,1],pva[1,:,2]]) # velocity
         all_acc = np.array([pva[2,:,0],pva[2,:,1],pva[2,:,2]]) # acceleration
@@ -254,7 +256,7 @@ class trajectory_generator(object):
         all_sna = np.array([pva[4,:,0],pva[4,:,1],pva[4,:,2]]) # snap
 
         if count >= num_points:
-            ref_pos = np.array([pva[0,-1,0],pva[0,-1,1],pva[0,-1,2]]) # position
+            ref_pos = np.array([pva[0,-1,0],pva[0,-1,1],landing_hgt]) # position
             ref_vel = np.array([pva[1,-1,0],pva[1,-1,1],pva[1,-1,2]]) # velocity
             ref_acc = np.array([pva[2,-1,0],pva[2,-1,1],pva[2,-1,2]]) # acceleration
             ref_jer = np.array([pva[3,-1,0],pva[3,-1,1],pva[3,-1,2]]) # jerk

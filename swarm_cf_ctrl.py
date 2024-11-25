@@ -115,23 +115,23 @@ if __name__ == '__main__':
         # team 1
         kpz_1 = 20
         kdz_1 = 10
-        kiz_1 = 0.001
-        z_gains_1 = np.array([kpz_1*1000, kdz_1*1000, kiz_1])
+        kiz_1 = 1
+        z_gains_1 = np.array([kpz_1*1000, kdz_1*1000, kiz_1*1000])
         att_robot_1 = att_ctrl.att_ctrl(z_gains_1)
         
         
         # team 2
         kpz_2 = 20
         kdz_2 = 10
-        kiz_2 = 0.001
-        z_gains_2 = np.array([kpz_2*1000, kdz_2*1000, kiz_2])
+        kiz_2 = 1
+        z_gains_2 = np.array([kpz_2*1000, kdz_2*1000, kiz_2*1000])
         att_robot_2 = att_ctrl.att_ctrl(z_gains_2)
         
         # team 3
         kpz_3 = 20
         kdz_3 = 10
-        kiz_3 = 0.001
-        z_gains_3 = np.array([kpz_3*1000, kdz_3*1000, kiz_3])
+        kiz_3 = 1
+        z_gains_3 = np.array([kpz_3*1000, kdz_3*1000, kiz_3*1000])
         att_robot_3 = att_ctrl.att_ctrl(z_gains_3)
         
 

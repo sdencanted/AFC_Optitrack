@@ -114,14 +114,18 @@ if __name__ == '__main__':
         # trajectory generator
         traj_gen = trajectory_generator.trajectory_generator()
 
+
+        # traj generator for min snap circle
+        pva,num_pts = traj_gen.compute_jerk_snap_9pt_circle(0, 1.2, 30) # 3 m/s
+
+
         # team 1
         kpz_1 = 20
         kdz_1 = 10
         kiz_1 = 1
-        z_gains_1 = np.array([kpz_1*1000, kdz_1*1000, kiz_1])
+        z_gains_1 = np.array([kpz_1*1000, kdz_1*1000, kiz_1*1000])
         att_robot_1 = att_ctrl.att_ctrl(z_gains_1)
                
-
         time_start = time.time()
         time_end = time.time() + 6000
 
@@ -201,7 +205,7 @@ if __name__ == '__main__':
             #ref_pos_1 = traj_gen.helix(0, 0.4, count, 5)
             #ref_pos = ref_pos_1[0]
             
-            ref_derivatives = traj_gen.jerk_snap_9pt_circle(0, 0.4, count, 5)
+            ref_derivatives = traj_gen.jerk_snap_9pt_circle(pva,num_pts,count,0.25)
             ref_pos = ref_derivatives[0]
             ref_vel = ref_derivatives[1]
             ref_acc = ref_derivatives[2]
@@ -216,7 +220,7 @@ if __name__ == '__main__':
             cmd_att_arm = np.array([0, 0, 0, conPad * 1]) # optitrack control [roll,  pitch ,  yawrate, thrust]
             cmd_att = np.array([cmd_att_arm, cmd_att_arm, cmd_att_arm]) """
             
-            
+
             # control input (traj execution)
             cmd_att_1 = att_robot_1.get_angles_and_thrust(enable)
 
@@ -224,9 +228,18 @@ if __name__ == '__main__':
             # feedforward terms
             ff_jerk_1 = att_robot_1.include_jerk_bod_rates(ref_jerk)
             ff_snap_1 = att_robot_1.include_snap_bod_raterate(ref_snap)
-
             
-            cmd_att = np.array([cmd_att_1 + ff_jerk_1 + ff_snap_1])
+
+            # control input w js ff
+            cmd_att_js = cmd_att_1[0:3] + ff_jerk_1 + ff_snap_1
+
+
+            # concatenate w js ff
+            cmd_att_1[0:3] = cmd_att_js
+
+
+            #cmd_att = np.array([cmd_att_js])
+            cmd_att = np.array([cmd_att_1])
             seq_args = swarm_exe(cmd_att)
             swarm.parallel(arm_throttle, args_dict=seq_args)
 
@@ -234,8 +247,10 @@ if __name__ == '__main__':
             if count % 10 == 0:
                 
                 #print(abs_time) # updating at 120 hz
-                print (ref_msg) 
+                print(ref_msg) 
+                print('shapes: ', np.shape(cmd_att_js), np.shape(ff_jerk_1), np.shape(ff_snap_1))
                 print('robot_position', robot[0], robot[1], robot[2])
+                print('ref robot_position', ref_pos[0], ref_pos[1], ref_pos[2])
                 print('pos_error', ref_pos[0]-robot[0], ref_pos[1]-robot[1], ref_pos[2]-robot[2])
 
             # rmse accumulation
@@ -271,6 +286,6 @@ if __name__ == '__main__':
                 break
 
 # save data
-#path = '/home/emmanuel/AFC_Optitrack/jerk_snap/'
-#data_saver.save_data(path)
+path = '/home/emmanuel/AFC_Optitrack/jerk_snap/'
+data_saver.save_data(path)
 

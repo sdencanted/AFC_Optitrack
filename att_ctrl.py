@@ -49,7 +49,7 @@ class att_ctrl(object):
 
     def attitude_loop(self, quat, control_input):
         kpa = np.array([1.0, 1.0]) # abt x y
-        qz = quaternion.create(quat[0], quat[1], quat[2], 1) # x y z w ## todo, mon change the final element from 1 to quat[3] 
+        qz = quaternion.create(quat[0], quat[1], quat[2], 1) # x y z w ## qw is always set to 1 even in optitrack itself
         qzi = quaternion.inverse(qz)
         ez = np.array([0, 0, 1]) # 3,:
         disk_vector = quaternion.apply_to_vector(qz, ez) # flattened array
