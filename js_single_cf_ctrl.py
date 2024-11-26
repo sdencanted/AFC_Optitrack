@@ -102,21 +102,23 @@ if __name__ == '__main__':
     # omega and omega_dot terms for robot
     last_robot = [0, 0, 0, 0, 0, 0, 0, 0]
     last_robot_dot = [0, 0, 0, 0, 0, 0, 0, 0]
-    
+
+
+    # trajectory generator
+    traj_gen = trajectory_generator.trajectory_generator()
+
+
+    # traj generator for min snap circle
+    #pva,num_pts = traj_gen.compute_jerk_snap_9pt_circle(0, 0.5, 1)
+    pva,num_pts = traj_gen.compute_jerk_snap_9pt_circle_x_laps(0, 1.3, 30, 5)  # (0, 1.2, 30) - 3 m/s, (0 , 1.4, 50) - 5m/s
+
+
     with Swarm(uris, factory= CachedCfFactory(rw_cache='./cache')) as swarm:
         #swarm.reset_estimators()
         cmd_att_startup = np.array([0, 0, 0, 0]) # init setpt to 0 0 0 0
         cmd_att = np.array([cmd_att_startup])
         seq_args = swarm_exe(cmd_att)
         swarm.parallel(init_throttle, args_dict=seq_args)
-
-
-        # trajectory generator
-        traj_gen = trajectory_generator.trajectory_generator()
-
-
-        # traj generator for min snap circle
-        pva,num_pts = traj_gen.compute_jerk_snap_9pt_circle(0, 1.2, 30) # 3 m/s
 
 
         # team 1
@@ -205,7 +207,7 @@ if __name__ == '__main__':
             #ref_pos_1 = traj_gen.helix(0, 0.4, count, 5)
             #ref_pos = ref_pos_1[0]
             
-            ref_derivatives = traj_gen.jerk_snap_9pt_circle(pva,num_pts,count,0.25)
+            ref_derivatives = traj_gen.jerk_snap_circle(pva,num_pts,count,0.25)
             ref_pos = ref_derivatives[0]
             ref_vel = ref_derivatives[1]
             ref_acc = ref_derivatives[2]
@@ -220,25 +222,20 @@ if __name__ == '__main__':
             cmd_att_arm = np.array([0, 0, 0, conPad * 1]) # optitrack control [roll,  pitch ,  yawrate, thrust]
             cmd_att = np.array([cmd_att_arm, cmd_att_arm, cmd_att_arm]) """
             
-
             # control input (traj execution)
             cmd_att_1 = att_robot_1.get_angles_and_thrust(enable)
-
 
             # feedforward terms
             ff_jerk_1 = att_robot_1.include_jerk_bod_rates(ref_jerk)
             ff_snap_1 = att_robot_1.include_snap_bod_raterate(ref_snap)
             
-
             # control input w js ff
             cmd_att_js = cmd_att_1[0:3] + ff_jerk_1 + ff_snap_1
-
 
             # concatenate w js ff
             cmd_att_1[0:3] = cmd_att_js
 
-
-            #cmd_att = np.array([cmd_att_js])
+            # send to single js
             cmd_att = np.array([cmd_att_1])
             seq_args = swarm_exe(cmd_att)
             swarm.parallel(arm_throttle, args_dict=seq_args)

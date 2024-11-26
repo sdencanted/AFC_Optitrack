@@ -246,9 +246,54 @@ class trajectory_generator(object):
         # Sample up to the 3rd order (Jerk) -----v
         pva = ms.compute_trajectory_derivatives(polys, t, 6) # up to order of derivatives is 6
         return (pva,num_points)
+    
+
+    def compute_jerk_snap_9pt_circle_x_laps(self, x_offset, radius, speedX, laps):
+        # theta goes from 0 to 2pi
+        parts = 9 # octagon lap x 5
+        theta = np.linspace(0, 2*np.pi, parts)
+        total_parts = parts + ((parts -1)*(laps-1)) 
+
+        # the radius of the circle
+        r = radius
+        circumference = 2*np.pi*r
+        total_time = laps*((circumference/0.1)/speedX)
+        num_points = int(laps*((circumference/0.1)*100)) # 0.1 m/s baseline 
+        num_points = int(num_points/speedX) # 0.1 m/s baseline
+
+        # compute x1 and x2
+        x_coordinates = r*np.cos(theta) + x_offset
+        y_coordinates = r*np.sin(theta) + 1.2
+
+        x = np.array([x_coordinates[0]])
+        y = np.array([y_coordinates[0]])
+        refs = []
+
+        for i in range(laps):
+            x = np.append(x,x_coordinates[1:])
+            y = np.append(y,y_coordinates[1:])
+
+        for i in range(total_parts):
+            refs.append(ms.Waypoint(
+                time=(total_time/(total_parts-1))*i,
+                position=np.array([x[i], y[i], 1.0]),
+            ))
+
+        polys = ms.generate_trajectory(
+                refs,
+                degree=8,  # Polynomial degree
+                idx_minimized_orders=(3, 4),  
+                num_continuous_orders=3,  
+                algorithm="closed-form",  # Or "constrained"
+            )
+
+        t = np.linspace(0, total_time, num_points)
+        # Sample up to the 3rd order (Jerk) -----v
+        pva = ms.compute_trajectory_derivatives(polys, t, 6) # up to order of derivatives is 6
+        return (pva,num_points)
 
 
-    def jerk_snap_9pt_circle(self, pva, num_points, count, landing_hgt):
+    def jerk_snap_circle(self, pva, num_points, count, landing_hgt):
         all_pos = np.array([pva[0,:,0],pva[0,:,1],pva[0,:,2]]) # position
         all_vel = np.array([pva[1,:,0],pva[1,:,1],pva[1,:,2]]) # velocity
         all_acc = np.array([pva[2,:,0],pva[2,:,1],pva[2,:,2]]) # acceleration
