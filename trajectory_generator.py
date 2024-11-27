@@ -301,11 +301,11 @@ class trajectory_generator(object):
         all_sna = np.array([pva[4,:,0],pva[4,:,1],pva[4,:,2]]) # snap
 
         if count >= num_points:
-            ref_pos = np.array([pva[0,-1,0],pva[0,-1,1],landing_hgt]) # position
-            ref_vel = np.array([pva[1,-1,0],pva[1,-1,1],pva[1,-1,2]]) # velocity
-            ref_acc = np.array([pva[2,-1,0],pva[2,-1,1],pva[2,-1,2]]) # acceleration
-            ref_jer = np.array([pva[3,-1,0],pva[3,-1,1],pva[3,-1,2]]) # jerk
-            ref_sna = np.array([pva[4,-1,0],pva[4,-1,1],pva[4,-1,2]]) # snap
+            ref_pos = np.array([0,1.0,landing_hgt]) # position
+            ref_vel = np.array([0,0,0]) # velocity
+            ref_acc = np.array([0,0,0]) # acceleration
+            ref_jer = np.array([0,0,0]) # jerk
+            ref_sna = np.array([0,0,0]) # snap
             msg = "traj ended..."
         else:
             ref_pos = np.array([pva[0,count,0],pva[0,count,1],pva[0,count,2]]) # ref position

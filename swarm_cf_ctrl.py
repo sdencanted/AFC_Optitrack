@@ -23,9 +23,29 @@ import trajectory_generator
 
 # robot address
 # Change uris and sequences according to your setup
-URI1 = 'radio://0/20/2M/E7E7E7E702'
-URI2 = 'radio://0/30/2M/E7E7E7E703'
+# channel in front, index behind 
+
+# URI1 = 'radio://0/30/2M/E7E7E7E70B'
+# URI2 = 'radio://0/30/2M/E7E7E7E707'
+# URI1 = 'radio://0/30/2M/E7E7E7E703'
+
+# URI2 = 'radio://0/30/2M/E7E7E7E70D' # problem
+
+URI1 = 'radio://0/30/2M/E7E7E7E706'
+URI2 = 'radio://0/30/2M/E7E7E7E708'
+
+#URI2 = 'radio://0/30/2M/E7E7E7E703'
 #URI3 = 'radio://0/30/2M/E7E7E7E704'
+
+
+# team 1 gains (PDI)
+team_1_gains= np.array([20, 10, 1])
+# team 2 gains (PDI)
+team_2_gains= np.array([20, 10, 1])
+
+
+# traj
+traj_chosen = 4 # 0 for hover, 1 for low rectangle, 2 for simple high rectangle, 3 for elevated circle, 4 for helix
 
 
 uris = {
@@ -33,6 +53,26 @@ uris = {
     URI2,
     #URI3,
 }
+
+
+def traj_select(traj_chosen):
+    return traj_chosen
+
+
+def gains_1(team_1_gains):
+    kpz_1 = team_1_gains[0]
+    kdz_1 = team_1_gains[1]
+    kiz_1 = team_1_gains[2]
+    z_gains_1 = np.array([kpz_1*1000, kdz_1*1000, kiz_1*1000])
+    return z_gains_1
+
+
+def gains_2(team_2_gains):
+    kpz_2 = team_2_gains[0]
+    kdz_2 = team_2_gains[1]
+    kiz_2 = team_2_gains[2]
+    z_gains_2 = np.array([kpz_2*1000, kdz_2*1000, kiz_2*1000])
+    return z_gains_2
 
 
 def swarm_exe(cmd_att):
@@ -113,18 +153,20 @@ if __name__ == '__main__':
         traj_gen = trajectory_generator.trajectory_generator()
 
         # team 1
-        kpz_1 = 20
-        kdz_1 = 10
-        kiz_1 = 1
-        z_gains_1 = np.array([kpz_1*1000, kdz_1*1000, kiz_1*1000])
+        # kpz_1 = 20
+        # kdz_1 = 10
+        # kiz_1 = 1
+        # z_gains_1 = np.array([kpz_1*1000, kdz_1*1000, kiz_1*1000])
+        z_gains_1 = gains_1(team_1_gains)
         att_robot_1 = att_ctrl.att_ctrl(z_gains_1)
         
         
         # team 2
-        kpz_2 = 20
-        kdz_2 = 10
-        kiz_2 = 1
-        z_gains_2 = np.array([kpz_2*1000, kdz_2*1000, kiz_2*1000])
+        # kpz_2 = 20
+        # kdz_2 = 10
+        # kiz_2 = 1
+        # z_gains_2 = np.array([kpz_2*1000, kdz_2*1000, kiz_2*1000])
+        z_gains_2 = gains_2(team_2_gains)
         att_robot_2 = att_ctrl.att_ctrl(z_gains_2)
         
         # team 3
@@ -208,29 +250,44 @@ if __name__ == '__main__':
             time_last = time.time()
 
             # reference position
-            """ ref_pos_1 = traj_gen.hover_test(-1)
-            ref_pos1 = ref_pos_1[0]
-            ref_pos_2 = traj_gen.hover_test(0)
-            ref_pos2 = ref_pos_2[0]
-            #ref_pos_3 = traj_gen.hover_test(1)
-            #ref_pos3 = ref_pos_3[0] """
+            traj_round = traj_select(traj_chosen)
+            
+            if traj_round == 0:
+                ref_pos_1 = traj_gen.hover_test(-1)
+                ref_pos1 = ref_pos_1[0]
+                ref_pos_2 = traj_gen.hover_test(0)
+                ref_pos2 = ref_pos_2[0]
+                #ref_pos_3 = traj_gen.hover_test(1)
+                #ref_pos3 = ref_pos_3[0]
 
-            """ ref_pos_1 = traj_gen.elevated_rectangle(-1, abs_time)
-            ref_pos1 = ref_pos_1[0]
-            ref_pos_2 = traj_gen.elevated_rectangle(0, abs_time)
-            ref_pos2 = ref_pos_2[0]
-            #ref_pos_3 = traj_gen.low_alt_rectangle(1, abs_time)
-            #ref_pos3 = ref_pos_3[0] """
+            elif traj_round == 1:
+                ref_pos_1 = traj_gen.low_alt_rectangle(-1, abs_time)
+                ref_pos1 = ref_pos_1[0]
+                ref_pos_2 = traj_gen.low_alt_rectangle(0, abs_time)
+                ref_pos2 = ref_pos_2[0]
+                #ref_pos_3 = traj_gen.low_alt_rectangle(1, abs_time)
+                #ref_pos3 = ref_pos_3[0]
 
-            """ ref_pos_1 = traj_gen.simple_circle(-1, 0.4, count, 5)
-            ref_pos1 = ref_pos_1[0]
-            ref_pos_2 = traj_gen.simple_circle(0.5, 0.4, count, 5)
-            ref_pos2 = ref_pos_2[0] """
+            elif traj_round == 2:
+                ref_pos_1 = traj_gen.simple_rectangle(-1, abs_time)
+                ref_pos1 = ref_pos_1[0]
+                ref_pos_2 = traj_gen.simple_rectangle(0, abs_time)
+                ref_pos2 = ref_pos_2[0]
+                #ref_pos_3 = traj_gen.low_alt_rectangle(1, abs_time)
+                #ref_pos3 = ref_pos_3[0]
 
-            ref_pos_1 = traj_gen.helix(-1, 0.4, count, 5)
-            ref_pos1 = ref_pos_1[0]
-            ref_pos_2 = traj_gen.helix(0.5, 0.4, count, 5)
-            ref_pos2 = ref_pos_2[0]
+            elif traj_round == 3:    
+                ref_pos_1 = traj_gen.elevated_circle(-1, 0.4, count, 2)
+                ref_pos1 = ref_pos_1[0]
+                ref_pos_2 = traj_gen.elevated_circle(0, 0.4, count, 2)
+                ref_pos2 = ref_pos_2[0]
+
+            elif traj_round == 4:
+                ref_pos_1 = traj_gen.helix(-1, 0.4, count, 5)
+                ref_pos1 = ref_pos_1[0]
+                ref_pos_2 = traj_gen.helix(0.5, 0.4, count, 5)
+                ref_pos2 = ref_pos_2[0]
+
 
             # update positions etc.
             att_robot_1.update(robot_1, dt, ref_pos1, z_offset)

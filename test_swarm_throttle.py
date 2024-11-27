@@ -22,21 +22,21 @@ from cflib.crazyflie.swarm import Swarm
 # robot address
 # Change uris and sequences according to your setup
 
-URI1 = 'radio://0/30/2M/E7E7E7E702'
-URI2 = 'radio://0/30/2M/E7E7E7E703'
-URI3 = 'radio://0/30/2M/E7E7E7E704'
+URI1 = 'radio://0/30/2M/E7E7E7E706'
+URI2 = 'radio://0/40/2M/E7E7E7E70D'
+#URI3 = 'radio://0/30/2M/E7E7E7E704'
 
 uris = {
     URI1,
     URI2,
-    URI3,
+    #URI3,
 }
 
 def swarm_exe(cmd_att):
     seq_args = {
         URI1: [cmd_att[0]],
         URI2: [cmd_att[1]],
-        URI3: [cmd_att[2]],
+        #URI3: [cmd_att[2]],
     }
     return seq_args
 
@@ -90,7 +90,7 @@ if __name__ == '__main__':
     with Swarm(uris, factory= CachedCfFactory(rw_cache='./cache')) as swarm:
         #swarm.reset_estimators()
         cmd_att_startup = np.array([0, 0, 0, 0]) # init setpt to 0 0 0 0
-        cmd_att = np.array([cmd_att_startup,cmd_att_startup,cmd_att_startup])
+        cmd_att = np.array([cmd_att_startup,cmd_att_startup])
         seq_args = swarm_exe(cmd_att)
         swarm.parallel(init_throttle, args_dict=seq_args)
         
@@ -166,7 +166,7 @@ if __name__ == '__main__':
 
             # control input
             cmd_att_arm = np.array([0, 0, 0, conPad * 1]) # optitrack control [roll,  pitch ,  yawrate, thrust]
-            cmd_att = np.array([cmd_att_arm, cmd_att_arm, cmd_att_arm])
+            cmd_att = np.array([cmd_att_arm, cmd_att_arm])
             seq_args = swarm_exe(cmd_att)
             print("seq_args: ", seq_args)
             swarm.parallel(arm_throttle, args_dict=seq_args)
@@ -188,7 +188,7 @@ if __name__ == '__main__':
 
             if button0 == 1:
                 cmd_att_cut = np.array([0, 0, 0, conPad * 0]) # optitrack control [roll,  pitch ,  yawrate, thrust]
-                cmd_att = np.array([cmd_att_cut, cmd_att_cut, cmd_att_cut])
+                cmd_att = np.array([cmd_att_cut, cmd_att_cut])
                 seq_args = swarm_exe(cmd_att)
                 swarm.parallel(arm_throttle, args_dict=seq_args)
                 print('Emergency Stopped')

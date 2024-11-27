@@ -110,7 +110,7 @@ if __name__ == '__main__':
 
     # traj generator for min snap circle
     #pva,num_pts = traj_gen.compute_jerk_snap_9pt_circle(0, 0.5, 1)
-    pva,num_pts = traj_gen.compute_jerk_snap_9pt_circle_x_laps(0, 1.3, 30, 5)  # (0, 1.2, 30) - 3 m/s, (0 , 1.4, 50) - 5m/s
+    pva,num_pts = traj_gen.compute_jerk_snap_9pt_circle_x_laps(0, 2.0, 50, 5)  # (0, 1.2, 30) - 3 m/s, (0 , 1.4, 50) - 5m/s
 
 
     with Swarm(uris, factory= CachedCfFactory(rw_cache='./cache')) as swarm:

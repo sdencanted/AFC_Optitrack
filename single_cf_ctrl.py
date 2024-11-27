@@ -26,9 +26,11 @@ import trajectory_generator
 
 # radio 1
 #URI1 = 'radio://0/20/2M/E7E7E7E702'
-#URI1 = 'radio://0/30/2M/E7E7E7E703'
 URI1 = 'radio://0/30/2M/E7E7E7E703'
-
+#URI1 = 'radio://0/30/2M/E7E7E7E703'
+#URI1 = 'radio://0/60/2M/E7E7E7E70A'
+#URI1 = 'radio://0/20/2M/E7E7E7E70D' # shit
+#URI1 = 'radio://0/30/2M/E7E7E7E70D'
 
 
 uris = {
@@ -189,7 +191,7 @@ if __name__ == '__main__':
             #ref_pos_1 = traj_gen.simple_circle(0, 0.25, count, 5)
             #ref_pos_1 = traj_gen.elevated_circle(0, 0.6, count)
             #ref_pos_1 = traj_gen.hover_test(0)
-            ref_pos_1 = traj_gen.helix(0, 0.4, count, 2)
+            ref_pos_1 = traj_gen.helix(0, 0.4, count, 5)
             
             
             ref_pos = ref_pos_1[0]
