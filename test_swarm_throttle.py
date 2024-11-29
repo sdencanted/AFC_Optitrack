@@ -1,6 +1,6 @@
 import cflib.crtp
 import pygame
-from cflib.crazyflie import Crazyflie
+from cflib.crazyflie import Crazyflie 
 from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 
 import logging
@@ -22,8 +22,8 @@ from cflib.crazyflie.swarm import Swarm
 # robot address
 # Change uris and sequences according to your setup
 
-URI1 = 'radio://0/30/2M/E7E7E7E706'
-URI2 = 'radio://0/40/2M/E7E7E7E70D'
+URI1 = 'radio://0/30/2M/E7E7E7E70A'
+URI2 = 'radio://0/30/2M/E7E7E7E70D'
 #URI3 = 'radio://0/30/2M/E7E7E7E704'
 
 uris = {
@@ -59,6 +59,8 @@ def arm_throttle(scf, cmds):
     try:
         cf = scf.cf
         cf.commander.send_setpoint(int(cmds[0]), int(cmds[1]), int(cmds[2]), int(cmds[3])) 
+        #ver = cf.platformservice.get_protocol_version()
+        #print('protocol version: ', ver)
         print('arming w thrust val....', cmds[3])
     except Exception as e:
         print("swarming error: ", e)

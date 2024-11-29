@@ -26,7 +26,7 @@ import trajectory_generator
 
 # radio 1
 #URI1 = 'radio://0/20/2M/E7E7E7E702'
-URI1 = 'radio://0/30/2M/E7E7E7E703'
+URI1 = 'radio://0/30/2M/E7E7E7E70B'
 #URI1 = 'radio://0/30/2M/E7E7E7E703'
 #URI1 = 'radio://0/60/2M/E7E7E7E70A'
 #URI1 = 'radio://0/20/2M/E7E7E7E70D' # shit
@@ -89,6 +89,12 @@ if __name__ == '__main__':
     pad_speed = 1
     time_last = 0
     count = 0
+
+    # select robot
+    select_robot = 1
+
+    # reference offset for z
+    x_offset = 0.0
 
     # reference offset for z
     z_offset = 0.0
@@ -180,18 +186,22 @@ if __name__ == '__main__':
             robot_3 = [data_processor.px3, data_processor.py3, data_processor.pz3, data_processor.quat_x3, data_processor.quat_y3, data_processor.quat_z3, data_processor.quat_w3, yaw_3]
 
             #assign robot
-            robot = robot_2
+            if select_robot == 1:
+                robot = robot_1
+            else:
+                robot = robot_2
 
             # calculate velocity
             dt = time.time() - time_last  #  time difference
             time_last = time.time()
 
             # reference position
+            #ref_pos_1 = traj_gen.low_alt_rectangle(0, abs_time)
             #ref_pos_1 = traj_gen.simple_rectangle(0, abs_time)
             #ref_pos_1 = traj_gen.simple_circle(0, 0.25, count, 5)
-            #ref_pos_1 = traj_gen.elevated_circle(0, 0.6, count)
-            #ref_pos_1 = traj_gen.hover_test(0)
-            ref_pos_1 = traj_gen.helix(0, 0.4, count, 5)
+            ref_pos_1 = traj_gen.elevated_circle(0, 0.4, count, 2)
+            #ref_pos_1 = traj_gen.hover_test(x_offset)
+            #ref_pos_1 = traj_gen.helix(0, 0.4, count, 5)
             
             
             ref_pos = ref_pos_1[0]

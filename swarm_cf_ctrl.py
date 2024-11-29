@@ -31,8 +31,8 @@ import trajectory_generator
 
 # URI2 = 'radio://0/30/2M/E7E7E7E70D' # problem
 
-URI1 = 'radio://0/30/2M/E7E7E7E706'
-URI2 = 'radio://0/30/2M/E7E7E7E708'
+URI1 = 'radio://0/30/2M/E7E7E7E70A'
+URI2 = 'radio://0/30/2M/E7E7E7E711'
 
 #URI2 = 'radio://0/30/2M/E7E7E7E703'
 #URI3 = 'radio://0/30/2M/E7E7E7E704'
@@ -364,6 +364,6 @@ if __name__ == '__main__':
                 break
 
 # save data
-path = '/home/emmanuel/AFC_Optitrack/robot_swarm/'
-data_saver.save_data(path)
+#path = '/home/emmanuel/AFC_Optitrack/robot_swarm/'
+#data_saver.save_data(path)
 

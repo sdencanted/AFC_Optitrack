@@ -370,7 +370,7 @@ class trajectory_generator(object):
         if count >= num_points:
             ref_x = x[-1]
             ref_y = y[-1]
-            ref_z = 0.2
+            ref_z = 0.10
             msg = "traj ended..."
         else:
             ref_x = x[count]
@@ -413,7 +413,7 @@ class trajectory_generator(object):
         if count >= num_points*4:
             ref_x = helix_array_x[-1]
             ref_y = helix_array_y[-1]
-            ref_z = 0.2
+            ref_z = 0.10
             msg = "traj ended..."
         else:
             ref_x = helix_array_x[count]
