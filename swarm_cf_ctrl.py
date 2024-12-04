@@ -31,21 +31,21 @@ import trajectory_generator
 
 # URI2 = 'radio://0/30/2M/E7E7E7E70D' # problem
 
-URI1 = 'radio://0/30/2M/E7E7E7E70A'
-URI2 = 'radio://0/30/2M/E7E7E7E711'
+URI1 = 'radio://0/30/2M/E7E7E7E701'
+URI2 = 'radio://0/30/2M/E7E7E7E710'
 
 #URI2 = 'radio://0/30/2M/E7E7E7E703'
 #URI3 = 'radio://0/30/2M/E7E7E7E704'
 
 
 # team 1 gains (PDI)
-team_1_gains= np.array([20, 10, 1])
+team_1_gains= np.array([20, 10, 1]) # 20, 10, 1
 # team 2 gains (PDI)
 team_2_gains= np.array([20, 10, 1])
 
 
 # traj
-traj_chosen = 4 # 0 for hover, 1 for low rectangle, 2 for simple high rectangle, 3 for elevated circle, 4 for helix
+traj_chosen = 0 # 0 for hover, 1 for simple high rectangle, 2 for elevated rectangle, 3 for elevated circle, 4 for helix
 
 
 uris = {
@@ -260,15 +260,8 @@ if __name__ == '__main__':
                 #ref_pos_3 = traj_gen.hover_test(1)
                 #ref_pos3 = ref_pos_3[0]
 
-            elif traj_round == 1:
-                ref_pos_1 = traj_gen.low_alt_rectangle(-1, abs_time)
-                ref_pos1 = ref_pos_1[0]
-                ref_pos_2 = traj_gen.low_alt_rectangle(0, abs_time)
-                ref_pos2 = ref_pos_2[0]
-                #ref_pos_3 = traj_gen.low_alt_rectangle(1, abs_time)
-                #ref_pos3 = ref_pos_3[0]
 
-            elif traj_round == 2:
+            elif traj_round == 1:
                 ref_pos_1 = traj_gen.simple_rectangle(-1, abs_time)
                 ref_pos1 = ref_pos_1[0]
                 ref_pos_2 = traj_gen.simple_rectangle(0, abs_time)
@@ -276,6 +269,16 @@ if __name__ == '__main__':
                 #ref_pos_3 = traj_gen.low_alt_rectangle(1, abs_time)
                 #ref_pos3 = ref_pos_3[0]
 
+
+            elif traj_round == 2:
+                ref_pos_1 = traj_gen.elevated_rectangle(-1, abs_time)
+                ref_pos1 = ref_pos_1[0]
+                ref_pos_2 = traj_gen.elevated_rectangle(0, abs_time)
+                ref_pos2 = ref_pos_2[0]
+                #ref_pos_3 = traj_gen.low_alt_rectangle(1, abs_time)
+                #ref_pos3 = ref_pos_3[0]
+
+            
             elif traj_round == 3:    
                 ref_pos_1 = traj_gen.elevated_circle(-1, 0.4, count, 2)
                 ref_pos1 = ref_pos_1[0]
