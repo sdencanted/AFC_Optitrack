@@ -31,21 +31,21 @@ import trajectory_generator
 
 # URI2 = 'radio://0/30/2M/E7E7E7E70D' # problem
 
-URI1 = 'radio://0/30/2M/E7E7E7E701'
-URI2 = 'radio://0/30/2M/E7E7E7E710'
+URI1 = 'radio://0/30/2M/E7E7E7E705'
+URI2 = 'radio://0/30/2M/E7E7E7E708'
 
 #URI2 = 'radio://0/30/2M/E7E7E7E703'
 #URI3 = 'radio://0/30/2M/E7E7E7E704'
 
 
 # team 1 gains (PDI)
-team_1_gains= np.array([20, 10, 1]) # 20, 10, 1
+team_1_gains= np.array([50, 30, 20]) # 20, 10, 1
 # team 2 gains (PDI)
-team_2_gains= np.array([20, 10, 1])
+team_2_gains= np.array([27, 19, 20])
 
 
 # traj
-traj_chosen = 0 # 0 for hover, 1 for simple high rectangle, 2 for elevated rectangle, 3 for elevated circle, 4 for helix
+traj_chosen = 4 # 0 for hover, 1 for simple high rectangle, 2 for elevated rectangle, 3 for elevated circle, 4 for helix
 
 
 uris = {
