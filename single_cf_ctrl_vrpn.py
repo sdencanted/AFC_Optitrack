@@ -20,6 +20,59 @@ from cflib.crazyflie.swarm import Swarm
 import att_ctrl
 import trajectory_generator
 
+import vrpn
+import multiprocessing
+
+# class vrpn_tracker(name="drone_3",address="192.168.65.4"):
+    # initialize vrpn 
+class VrpnTracker():
+#create a vrpn tracker object
+    def handle_position(self, _, data):
+        self.lock.acquire()
+
+        #1st axis is right aka +ve z
+        #2nd axis is front aka +ve x
+        #3rd axis is up aka +ve y
+
+        #crazyflie x is forward
+        #crazyflie y is left
+        #crazyflie z is up
+
+        #assign xyz based on crazyflie frame
+        self.data["x"]=data['position'][1]
+        self.data["y"]=-data['position'][0]
+        self.data["z"]=data['position'][2]
+
+        # self.data["x"]=data['position'][0]
+        # self.data["y"]=data['position'][1]
+        # self.data["z"]=data['position'][2]
+        self.data["qx"]=data['quaternion'][0]
+        self.data["qy"]=data['quaternion'][1]
+        self.data["qz"]=data['quaternion'][2]
+        self.data["qw"]=data['quaternion'][3]
+        self.lock.release()
+    def get_data(self):
+        self.lock.acquire()
+        data=self.data.copy()
+        self.lock.release()
+        return data
+    def run(self):
+        while True:
+            self.tracker.mainloop()
+    def __init__(self,name="drone_3",address="192.168.65.4"):
+        self.trackers=[]
+        self.data={"x":0,"y":0,"z":0,"qx":0,"qy":0,"qz":0,"qw":0}
+        self.tracker = vrpn.receiver.Tracker(name+"@"+address)
+        self.tracker.register_change_handler(None,self.handle_position,"position")
+
+        # create a lock on self.data
+        self.lock = multiprocessing.Lock()
+
+        # create a multiprocessing process to run the vrpn tracker
+        self.process = multiprocessing.Process(target=self.run)
+        self.process.daemon = True
+        self.process.start()
+
 
 # robot address
 # Change uris and sequences according to your setup
@@ -28,6 +81,7 @@ import trajectory_generator
 #URI1 = 'radio://0/20/2M/E7E7E7E702'
 # URI1 = 'radio://0/30/2M/E7E7E7E704'
 URI1 = 'radio://0/30/2M/E7E7E7E708'
+# URI1 = 'radio://0/30/2M/E7E7E7E706'
 #URI1 = 'radio://0/20/2M/E7E7E7E70D' # shit
 
 
@@ -40,7 +94,8 @@ traj_chosen = 0 # 0 for hover, 1 for low rectangle, 2 for simple high rectangle,
 select_robot = 1
 
 # reference offset for z
-x_offset = -1
+# x_offset = -1
+x_offset = 0
 
 
 uris = {
@@ -92,10 +147,11 @@ def arm_throttle(scf, cmds):
 
 if __name__ == '__main__':
 
-    data_receiver = Mocap.Udp(udp_ip="192.168.65.4",udp_port=3883)
-    sample_rate = data_receiver.get_sample_rate()
+    # data_receiver = Mocap.Udp(udp_ip="192.168.65.4",udp_port=3883)
+    vrpn_tracker = VrpnTracker(name="drone_3",address="192.168.65.4")
+    sample_rate = 120
     sample_time = 1 / sample_rate
-    data_processor = Data_process_swarm.RealTimeProcessor(5, [16], 'lowpass', 'cheby2', 85, sample_rate)
+    data_processor = Data_process_swarm.RealTimeProcessor(5, 16, 'lowpass', 'cheby2', 85, sample_rate)
 
     data_saver = DataSave.SaveData('Data_time',
                                    'robot_1','ref_position')
@@ -104,8 +160,8 @@ if __name__ == '__main__':
     cflib.crtp.init_drivers()
 
   # Initialize the joysticks
-    pygame.init()
-    pygame.joystick.init()
+    # pygame.init()
+    # pygame.joystick.init()
     done = False
     controllerEnable = False
     pad_speed = 1
@@ -144,46 +200,48 @@ if __name__ == '__main__':
 
         while time_end > time.time():
             abs_time = time.time() - time_start
-            # where hand control comes
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    done = True
+            enable = 1
+            # # where hand control comes
+            # # for event in pygame.event.get():
+            # #     if event.type == pygame.QUIT:
+            # #         done = True
 
-            joystick = pygame.joystick.Joystick(0)
-            joystick.init()
-            lowest = 0.9
-            highest = -1
-            range_js = -(highest - lowest)
-            range_motor = 65535
-            rate = range_motor / range_js
-            a0 = joystick.get_axis(0)  # x axis right hand <- ->
-            a1 = joystick.get_axis(1)  # y axis right hand up down
-            a2 = joystick.get_axis(2)  # thrust
-            a3 = joystick.get_axis(3)
+            # # joystick = pygame.joystick.Joystick(0)
+            # # joystick.init()
+            # lowest = 0.9
+            # highest = -1
+            # range_js = -(highest - lowest)
+            # range_motor = 65535
+            # rate = range_motor / range_js
+            # # a0 = joystick.get_axis(0)  # x axis right hand <- ->
+            # # a1 = joystick.get_axis(1)  # y axis right hand up down
+            # # a2 = joystick.get_axis(2)  # thrust
+            # # a3 = joystick.get_axis(3)
 
-            button0 = joystick.get_button(0)
-            button1 = joystick.get_button(1)
+            # # button0 = joystick.get_button(0)
+            # # button1 = joystick.get_button(1)
 
-            # thrust from control pad
-            conPad = int((a2 - highest) * rate)
+            # # thrust from control pad
+            # conPad = int((a2 - highest) * rate)
 
-            # joystick saturation
+            # # joystick saturation
 
-            if conPad < 10:
-                conPad = 10
-            if conPad > 65500:
-                conPad = 65500
+            # if conPad < 10:
+            #     conPad = 10
+            # if conPad > 65500:
+            #     conPad = 65500
 
-            # takeoff sign
-            if conPad < 2000:
-                enable = 0
-            else:
-                enable = 1
+            # # takeoff sign
+            # if conPad < 2000:
+            #     enable = 0
+            # else:
+            #     enable = 1
 
             # require data from Mocap
-            data = data_receiver.get_data()
+            # data = data_receiver.get_data()
+            data = vrpn_tracker.get_data()
             # data unpack
-            data_processor.data_unpack(data)
+            data_processor.data_unpack_vrpn(0,data)
             # raw data
             raw_data = data_processor.raw_data
             # filt data
@@ -275,24 +333,25 @@ if __name__ == '__main__':
                                 robot,ref_pos
                                 )
 
-            if button0 == 1:
-                """ # for hovering test
-                ref_pos[2] = 0.15
-                # descend
-                att_robot_1.update(robot, dt, ref_pos, z_offset)
-                cmd_att_1 = att_robot_1.get_angles_and_thrust(enable)
-                cmd_att = np.array([cmd_att_1])
-                seq_args = swarm_exe(cmd_att)
-                swarm.parallel(arm_throttle, args_dict=seq_args) """
+            # if button0 == 1:
+                
+            #     """ # for hovering test
+            #     ref_pos[2] = 0.15
+            #     # descend
+            #     att_robot_1.update(robot, dt, ref_pos, z_offset)
+            #     cmd_att_1 = att_robot_1.get_angles_and_thrust(enable)
+            #     cmd_att = np.array([cmd_att_1])
+            #     seq_args = swarm_exe(cmd_att)
+            #     swarm.parallel(arm_throttle, args_dict=seq_args) """
 
-                # for traj 
-                cmd_att_cut = np.array([0, 0, 0, 0]) # init setpt to 0 0 0 0
-                cmd_att = np.array([cmd_att_cut])
-                seq_args = swarm_exe(cmd_att)
-                swarm.parallel(init_throttle, args_dict=seq_args)
-                final_rmse = math.sqrt(rmse_num/count)
-                print('Emergency Stopped and rmse produced: ', final_rmse)
-                break
+            #     # for traj 
+            #     cmd_att_cut = np.array([0, 0, 0, 0]) # init setpt to 0 0 0 0
+            #     cmd_att = np.array([cmd_att_cut])
+            #     seq_args = swarm_exe(cmd_att)
+            #     swarm.parallel(init_throttle, args_dict=seq_args)
+            #     final_rmse = math.sqrt(rmse_num/count)
+            #     print('Emergency Stopped and rmse produced: ', final_rmse)
+            #     break
 
 # save data
 #path = '/home/emmanuel/AFC_Optitrack/robot_solo/'

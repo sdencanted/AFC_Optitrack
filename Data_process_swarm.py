@@ -120,6 +120,58 @@ class RealTimeProcessor(object):
                          self.px2, self.py2, self.pz2, self.quat_x2, self.quat_y2, self.quat_z2, self.quat_w2,
                          self.px3, self.py3, self.pz3, self.quat_x3, self.quat_y3, self.quat_z3, self.quat_w3]
 
+    def data_unpack_vrpn(self, idx,vrpn_data): # for 3 drones only
+        # x1, y1, z1, qx1, qy1, qz1, qw1, x2, y2, z2, qx2, qy2, qz2, qw2, x3, y3, z3, qx3, qy3, qz3, qw3= struct.unpack("hhhhhhhhhhhhhhhhhhhhh", udp_data)
+        if idx==0:
+            self.px1 = vrpn_data['x'] * 0.0005  # position px
+            self.py1 = vrpn_data['y'] * 0.0005  # position py
+            self.pz1 = vrpn_data['z'] * 0.0005  # position pz
+            self.quat_x1 = float(vrpn_data['qx'] * 0.001)
+            self.quat_y1 = float(vrpn_data['qy'] * 0.001)
+            self.quat_z1 = float(vrpn_data['qz'] * 0.001)
+            self.quat_w1 = float(vrpn_data['qw'] * 0.001)
+        elif idx==1:
+            self.px2 = vrpn_data['x'] * 0.0005  # position px
+            self.py2 = vrpn_data['y'] * 0.0005  # position py
+            self.pz2 = vrpn_data['z'] * 0.0005  # position pz
+            self.quat_x2 = float(vrpn_data['qx'] * 0.001)
+            self.quat_y2 = float(vrpn_data['qy'] * 0.001)
+            self.quat_z2 = float(vrpn_data['qz'] * 0.001)
+            self.quat_w2 = float(vrpn_data['qw'] * 0.001)
+        elif idx==2:
+            self.px3 = vrpn_data['x'] * 0.0005  # position px
+            self.py3 = vrpn_data['y'] * 0.0005  # position py
+            self.pz3 = vrpn_data['z'] * 0.0005  # position pz
+            self.quat_x3 = float(vrpn_data['qx'] * 0.001)
+            self.quat_y3 = float(vrpn_data['qy'] * 0.001)
+            self.quat_z3 = float(vrpn_data['qz'] * 0.001)
+            self.quat_w3 = float(vrpn_data['qw'] * 0.001)
+        # self.px1 = vrpn_data.x1 * 0.0005  # position px
+        # self.py1 = vrpn_data.y1 * 0.0005  # position py
+        # self.pz1 = vrpn_data.z1 * 0.0005  # position pz
+        # self.px2 = vrpn_data.x2 * 0.0005  # position px
+        # self.py2 = vrpn_data.y2 * 0.0005  # position py
+        # self.pz2 = vrpn_data.z2 * 0.0005  # position pz
+        # self.px3 = vrpn_data.x3 * 0.0005  # position px
+        # self.py3 = vrpn_data.y3 * 0.0005  # position py
+        # self.pz3 = vrpn_data.z3 * 0.0005  # position pz
+
+        # self.quat_x1 = float(vrpn_data.qx1 * 0.001)
+        # self.quat_y1 = float(vrpn_data.qy1 * 0.001)
+        # self.quat_z1 = float(vrpn_data.qz1 * 0.001)
+        # self.quat_w1 = float(vrpn_data.qw1 * 0.001)
+        # self.quat_x2 = float(vrpn_data.qx2 * 0.001)
+        # self.quat_y2 = float(vrpn_data.qy2 * 0.001)
+        # self.quat_z2 = float(vrpn_data.qz2 * 0.001)
+        # self.quat_w2 = float(vrpn_data.qw2 * 0.001)
+        # self.quat_x3 = float(vrpn_data.qx3 * 0.001)
+        # self.quat_y3 = float(vrpn_data.qy3 * 0.001)
+        # self.quat_z3 = float(vrpn_data.qz3 * 0.001)
+        # self.quat_w3 = float(vrpn_data.qw3 * 0.001)
+
+        self.raw_data = [self.px1, self.py1, self.pz1, self.quat_x1, self.quat_y1, self.quat_z1, self.quat_w1,
+                         self.px2, self.py2, self.pz2, self.quat_x2, self.quat_y2, self.quat_z2, self.quat_w2,
+                         self.px3, self.py3, self.pz3, self.quat_x3, self.quat_y3, self.quat_z3, self.quat_w3]
     def get_data_filted(self):
 
         self.px1_filted = self.FilterX1.filter(self.px1)

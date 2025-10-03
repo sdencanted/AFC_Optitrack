@@ -60,7 +60,7 @@ class att_ctrl(object):
         zd = np.array([[zd[0],zd[1],zd[2]]]) # 1 x 3 - row based simulated zd which is desired vector 
         num = np.dot(disk_vector,np.transpose(zd)) # 1 x 1
         den = la.norm(disk_vector,2)*la.norm(zd,2) # L2 norm of a and b
-        angle = math.acos(num/den) # angle in radians
+        angle = math.acos(num[0]/den) # angle in radians
 
         n = np.cross(disk_vector,zd)/la.norm(np.cross(disk_vector,zd)) # cross product of a and b - 1 x 3
         n = list(n.flat) # flattened array
