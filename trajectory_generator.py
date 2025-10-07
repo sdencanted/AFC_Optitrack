@@ -111,15 +111,22 @@ class trajectory_generator(object):
         elif 23 <= abs_time < 27:
             ref_x = 0
             ref_y = 0.6
-            ref_z = 0.2
+            ref_z = 1.0
             ref_pos = np.array([ref_x+x_offset, ref_y, ref_z])
             msg = "still flying..."
-        elif 27 <= abs_time:
+        elif 27 <= abs_time < 30:
+            ref_x = 0
+            ref_y = 0.6
+            ref_z = 0.3
+            ref_pos = np.array([ref_x+x_offset, ref_y, ref_z])
+            msg = "still flying..."
+        elif 30 <= abs_time:
             ref_x = 0
             ref_y = 0.6
             ref_z = 0.01
             ref_pos = np.array([ref_x+x_offset, ref_y, ref_z])
             msg = "traj ended..."
+            
 
         return (ref_pos,msg)
     

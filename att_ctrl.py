@@ -12,7 +12,7 @@ import Data_process_swarm
 
 import math
 from scipy.optimize import fsolve
-from pyrr import quaternion
+from pyrr import quaternion, Vector3
 import numpy as np
 import numpy.linalg as la
 
@@ -49,19 +49,21 @@ class att_ctrl(object):
 
     def attitude_loop(self, quat, control_input):
         kpa = np.array([1.0, 1.0]) # abt x y
-        qz = quaternion.create(quat[0], quat[1], quat[2], 1) # x y z w ## qw is always set to 1 even in optitrack itself
+        # qz = quaternion.create(quat[0], quat[1], quat[2], 1) # x y z w ## qw is always set to 1 even in optitrack itself
+        qz = quaternion.create(quat[0], quat[1], quat[2], quat[3]) # x y z w
         qzi = quaternion.inverse(qz)
-        ez = np.array([0, 0, 1]) # 3,:
+        ez = Vector3([0, 0, 1.0]) # 3,:
         disk_vector = quaternion.apply_to_vector(qz, ez) # flattened array
         disk_vector = np.array([[disk_vector[0],disk_vector[1],disk_vector[2]]])  # 1 x 3 - row based simulated disk vector
-        
         # pos control input here
         zd = control_input/la.norm(control_input,2)
         zd = np.array([[zd[0],zd[1],zd[2]]]) # 1 x 3 - row based simulated zd which is desired vector 
         num = np.dot(disk_vector,np.transpose(zd)) # 1 x 1
         den = la.norm(disk_vector,2)*la.norm(zd,2) # L2 norm of a and b
-        angle = math.acos(num[0]/den) # angle in radians
-
+        # convert num to scalar if it is not 
+        if isinstance(num, np.ndarray):
+            num = num.item()
+        angle = math.acos(num/den) # angle in radians
         n = np.cross(disk_vector,zd)/la.norm(np.cross(disk_vector,zd)) # cross product of a and b - 1 x 3
         n = list(n.flat) # flattened array
         B = quaternion.apply_to_vector(qzi, n) # inverse of qz applied to n
@@ -80,22 +82,29 @@ class att_ctrl(object):
         # control gains
         kpx = 12_000
         kpy = 12_000
+        # kpx = 30_000
+        # kpy = 30_000
         kpz = self.kpz
         p_gains = np.array([kpx, kpy, kpz])
 
-        kdx = 5_000
-        kdy = 5_000
+        # kdx = 5_000
+        # kdy = 5_000
+        kdx = 3_000
+        kdy = 3_000
         kdz = self.kdz
         d_gains = np.array([kdx, kdy, kdz])
 
-        kix = 0
-        kiy = 0
+        # kix = 0
+        # kiy = 0
+        kix = 1_000
+        kiy = 1_000
         kiz = self.kiz
         i_gains = np.array([kix, kiy, kiz])
         I_term_z_prior = 0
         I_term_prior = np.array([0, 0, I_term_z_prior])
 
         position_error = self.ref_pos - self.robot_pos # calculate position error
+        # print("position error:", position_error)
         rate_posiition_error = (position_error - self.position_error_last)/self.dt
         integral_error = (position_error*self.dt) + I_term_prior
         self.position_error_last = position_error
@@ -108,6 +117,7 @@ class att_ctrl(object):
     def get_angles_and_thrust(self,enable):
         self.control_input()
         cmd_att = self.attitude_loop(self.robot_quat, self.control_signal)
+        
         des_roll = int(cmd_att[0]*180/math.pi)
         des_pitch = int(cmd_att[1]*180/math.pi)
         des_thrust = int(self.control_signal[2])
@@ -126,7 +136,11 @@ class att_ctrl(object):
         if des_thrust < 10:
             des_thrust = 10
 
-        final_cmd = np.array([des_roll, des_pitch, 0, enable*des_thrust])
+        # cf needs roll(right is positive), pitch(down is positive), yaw, thrust
+        # controller outputs roll as left positive, pitch as down positive
+        # final_cmd = np.array([des_roll, des_pitch, 0, enable*des_thrust])
+        final_cmd = np.array([des_roll,des_pitch,  0, enable*des_thrust])
+        # print("pitch forwards:", final_cmd[1], "roll right:", final_cmd[0], "thrust:", des_thrust)
         self.cmd_z = enable*des_thrust
 
         return (final_cmd)
