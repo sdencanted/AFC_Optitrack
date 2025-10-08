@@ -30,7 +30,7 @@ skip_joystick = True
 # radio 1
 #URI1 = 'radio://0/20/2M/E7E7E7E702'
 # URI1 = 'radio://0/30/2M/E7E7E7E704'
-URI1 = 'radio://0/30/2M/E7E7E7E701'
+URI1 = 'radio://0/30/2M/E7E7E7E70E'
 # URI1 = 'radio://0/30/2M/E7E7E7E706'
 #URI1 = 'radio://0/20/2M/E7E7E7E70D' # shit
 
@@ -393,7 +393,7 @@ if __name__ == '__main__':
             
             
             # control input (traj execution)
-            cmd_att_1 = att_robot_1.get_angles_and_thrust(enable)
+            cmd_att_1 = att_robot_1.get_angles_and_thrust(skip_joystick or  enable)
             # cmd_att_1 = np.array([10,10,  0, 60000])
             cmd_att = np.array([cmd_att_1])
             seq_args = swarm_exe(cmd_att)
