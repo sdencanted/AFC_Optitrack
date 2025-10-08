@@ -67,13 +67,21 @@ def midi_to_freq_duration(uris,swarm,midi_file,initial_octave_offset=0):
     test_sing.sing_swarm(uris,swarm,[],100)
     return 
 #example usage
-midi_file = '/home/painis/Downloads/finale.mid'
+midi_file = '/home/painis/Downloads/umapyoi densetsu.mid'
 # midi_file = 'furelise.mid'
 
 URI1 = 'radio://0/30/2M/E7E7E7E70E'
+URI2 = 'radio://0/30/2M/E7E7E7E707'
+URI3 = 'radio://0/30/2M/E7E7E7E708'
+URI4 = 'radio://1/30/2M/E7E7E7E709'
+URI5 = 'radio://1/30/2M/E7E7E7E710'
 
 uris = {
     URI1,
+    URI2,
+    URI3,
+    URI4,
+    URI5
 }
 
 cflib.crtp.init_drivers()
@@ -92,4 +100,4 @@ with Swarm(uris, factory= CachedCfFactory(rw_cache='./cache')) as swarm:
 
     # test_sing.sing_swarm(uris,swarm,[round(440 * (2 ** ((84 - 69) / 12)))],1250)
     # time.sleep(1)
-    midi_to_freq_duration(uris,swarm,midi_file,2)
+    midi_to_freq_duration(uris,swarm,midi_file,0)

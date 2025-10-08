@@ -11,7 +11,7 @@ def duplicate_command(uris,cmd_att):
     # seq_args = {
     #     URI1: [cmd_att],
     # }
-    seq_args={ uri:[cmd_att[i]] for i,uri in enumerate(uris)}
+    seq_args={ uri:[cmd_att] for _,uri in enumerate(uris)}
     # print(seq_args)
     return seq_args
 # def sing(scf,freq:list=[100,100,100,100],duration_ms:int=500):
@@ -74,7 +74,7 @@ def arm_throttle(scf, cmds):
 
 def sing_swarm(uris,swarm,freq,duration_ms):
     # print("singing freq:",freq," for ",duration_ms," ms")
-    sing_arg=duplicate_command(uris,[{'freq':freq,'duration_ms':duration_ms}])
+    sing_arg=duplicate_command(uris,{'freq':freq,'duration_ms':duration_ms})
     swarm.parallel(sing,args_dict=sing_arg)
 
 
