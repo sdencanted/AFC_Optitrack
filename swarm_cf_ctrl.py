@@ -111,7 +111,6 @@ if __name__ == '__main__':
 
     data_receiver = Mocap.Udp()
     sample_rate = data_receiver.get_sample_rate()
-    sample_time = 1 / sample_rate
     data_processor = Data_process_swarm.RealTimeProcessor(5, [16], 'lowpass', 'cheby2', 85, sample_rate)
 
     data_saver = DataSave.SaveData('Data_time',
@@ -134,11 +133,9 @@ if __name__ == '__main__':
 
     # rmse terms
     rmse_num_1 = 0
-    rmse_count_1 = 0
     final_rmse_1 = 0
 
     rmse_num_2 = 0
-    rmse_count_2 = 0
     final_rmse_2 = 0
     
     with Swarm(uris, factory= CachedCfFactory(rw_cache='./cache')) as swarm:

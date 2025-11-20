@@ -26,9 +26,11 @@ def midi_to_freq_duration(uris,swarm,midi_file,initial_octave_offset=0):
         #check if msg has time attribute
         if not hasattr(msg, 'time'):
             continue
-        elif msg.is_meta or (msg.type not in ('note_on', 'note_off')) or msg.note+freq_offset<48:
+        elif msg.is_meta or (msg.type not in ('note_on', 'note_off')) or (msg.note+freq_offset<48 or msg.channel!=0):
             if msg.type  in ('note_on', 'note_off') and msg.note+freq_offset<48:
                 print("note too low, skipping",msg.note+freq_offset)
+            elif msg.type  in ('note_on', 'note_off') and msg.channel!=0:
+                print("non zero channel, skipping",msg.channel)
             else:
                 print("meta or non note event, skipping")
             accumulated_time+=msg.time
@@ -67,21 +69,21 @@ def midi_to_freq_duration(uris,swarm,midi_file,initial_octave_offset=0):
     test_sing.sing_swarm(uris,swarm,[],100)
     return 
 #example usage
-midi_file = '/home/painis/Downloads/umapyoi densetsu.mid'
-# midi_file = 'furelise.mid'
+# midi_file = '/home/painis/Downloads/umapyoi densetsu.mid'
+midi_file = 'Mexican Hat Dance.mid'
 
 URI1 = 'radio://0/30/2M/E7E7E7E70E'
-URI2 = 'radio://0/30/2M/E7E7E7E707'
-URI3 = 'radio://0/30/2M/E7E7E7E708'
-URI4 = 'radio://1/30/2M/E7E7E7E709'
-URI5 = 'radio://1/30/2M/E7E7E7E710'
+URI2 = 'radio://0/30/2M/E7E7E7E70D'
+URI3 = 'radio://0/30/2M/E7E7E7E711'
+# URI4 = 'radio://1/30/2M/E7E7E7E709'
+# URI5 = 'radio://1/30/2M/E7E7E7E710'
 
 uris = {
     URI1,
     URI2,
     URI3,
-    URI4,
-    URI5
+    # URI4,
+    # URI5
 }
 
 cflib.crtp.init_drivers()

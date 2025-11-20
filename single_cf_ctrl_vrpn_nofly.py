@@ -28,14 +28,14 @@ skip_joystick = True
 # Change uris and sequences according to your setup
 
 # radio 1
-URI1 = 'radio://0/20/2M/E7E7E7E702'
-URI1 = 'radio://0/30/2M/E7E7E7E704'
+#URI1 = 'radio://0/20/2M/E7E7E7E702'
+# URI1 = 'radio://0/30/2M/E7E7E7E704'
 URI1 = 'radio://0/30/2M/E7E7E7E70E'
-URI1 = 'radio://0/30/2M/E7E7E7E706'
-URI1 = 'radio://0/40/2M/E7E7E7E70D' # shit
+# URI1 = 'radio://0/30/2M/E7E7E7E706'
+#URI1 = 'radio://0/20/2M/E7E7E7E70D' # shit
 
 
-traj_chosen = 0 # 0 for hover, 1 for low rectangle, 2 for simple high rectangle, 3 for elevated circle, 4 for helix
+traj_chosen = 1 # 0 for hover, 1 for low rectangle, 2 for simple high rectangle, 3 for elevated circle, 4 for helix
 
 # select robot
 select_robot = 0
@@ -46,15 +46,15 @@ x_offset = 0
 
 
 
-gains= np.array([20, 10, 1]) # 20, 10, 1
+gains= np.array([20, 10, 2]) # 20, 10, 1
 
-# class vrpn_tracker(name="drone_3",address="192.168.65.4"):
+# class vrpn_tracker(name="drone_3",address="169.254.254.225"):
     # initialize vrpn 
 class VrpnTracker():
 #create a vrpn tracker object
     def handle_position(self, _, data):
         self.lock.acquire()
-
+        print(data)
         #1st axis is front aka +ve x
         #2nd axis is left aka -ve z
         #3rd axis is up aka +ve y
@@ -84,7 +84,7 @@ class VrpnTracker():
                 print(self.data)
             print("first data received")
         self.lock.acquire()
-
+        
         data=self.data.copy()
         # print(data)
         self.lock.release()
@@ -92,7 +92,7 @@ class VrpnTracker():
     def run(self):
         while True:
             self.tracker.mainloop()
-    def __init__(self,name="drone_3",address="192.168.65.4"):
+    def __init__(self,name="drone_3",address="169.254.254.225"):
         data={"x":0,"y":0,"z":0,"qx":0,"qy":0,"qz":0,"qw":-2}
 
         # create a multiprocessing shared value for data
@@ -162,8 +162,8 @@ def arm_throttle(scf, cmds):
 
 if __name__ == '__main__':
 
-    # data_receiver = Mocap.Udp(udp_ip="192.168.65.4",udp_port=3883)
-    vrpn_tracker = VrpnTracker(name="drone_3",address="192.168.65.4")
+    # data_receiver = Mocap.Udp(udp_ip="169.254.254.225",udp_port=3883)
+    vrpn_tracker = VrpnTracker(name="drone_3",address="169.254.254.225")
     sample_rate = 100
     sample_time = 1 / sample_rate
     data_processor = Data_process_swarm.RealTimeProcessor(5, 16, 'lowpass', 'cheby2', 85, sample_rate)
@@ -192,8 +192,8 @@ if __name__ == '__main__':
     rmse_y_num = 0
     rmse_z_num = 0
     final_rmse = 0
-    
-    with Swarm(uris, factory= CachedCfFactory(rw_cache='./cache')) as swarm:
+    with open("idc","w+") as f:
+    # with Swarm(uris, factory= CachedCfFactory(rw_cache='./cache')) as swarm:
         #swarm.reset_estimators()
         cmd_att_startup = np.array([0, 0, 0, 0]) # init setpt to 0 0 0 0
         cmd_att = np.array([cmd_att_startup])
@@ -240,7 +240,7 @@ if __name__ == '__main__':
                     break
         print("armed, starting in 3 seconds")
         time.sleep(3)
-        swarm.parallel(init_throttle, args_dict=seq_args)
+        # swarm.parallel(init_throttle, args_dict=seq_args)
         time_start = time.time()
         time_end = time.time() + 6000
         while time_end > time.time():
@@ -325,28 +325,28 @@ if __name__ == '__main__':
             # data unpack
             data_processor.data_unpack_vrpn(data)
             # raw data
-            # raw_data = data_processor.raw_data
+            raw_data = data_processor.raw_data
             # filt data
-            # filt_data = data_processor.get_data_filted()
+            filt_data = data_processor.get_data_filted()
             # rotation matrix
             rotm_1 = data_processor.get_rotm_1()
-            # rotm_2 = data_processor.get_rotm_2()
-            # rotm_3 = data_processor.get_rotm_3()
+            rotm_2 = data_processor.get_rotm_2()
+            rotm_3 = data_processor.get_rotm_3()
             # yaw
             yaw_1 = data_processor.get_heading_x1()
-            # yaw_2 = data_processor.get_heading_x2()
-            # yaw_3 = data_processor.get_heading_x3()
+            yaw_2 = data_processor.get_heading_x2()
+            yaw_3 = data_processor.get_heading_x3()
 
             # position feedback
             robot_1 = [data_processor.px1, data_processor.py1, data_processor.pz1, data_processor.quat_x1, data_processor.quat_y1, data_processor.quat_z1, data_processor.quat_w1, yaw_1]
-            # robot_2 = [data_processor.px2, data_processor.py2, data_processor.pz2, data_processor.quat_x2, data_processor.quat_y2, data_processor.quat_z2, data_processor.quat_w2, yaw_2]
-            # robot_3 = [data_processor.px3, data_processor.py3, data_processor.pz3, data_processor.quat_x3, data_processor.quat_y3, data_processor.quat_z3, data_processor.quat_w3, yaw_3]
+            robot_2 = [data_processor.px2, data_processor.py2, data_processor.pz2, data_processor.quat_x2, data_processor.quat_y2, data_processor.quat_z2, data_processor.quat_w2, yaw_2]
+            robot_3 = [data_processor.px3, data_processor.py3, data_processor.pz3, data_processor.quat_x3, data_processor.quat_y3, data_processor.quat_z3, data_processor.quat_w3, yaw_3]
 
             #assign robot
-            # if select_robot == 0:
-            robot = robot_1
-            # else:
-            #     robot = robot_2
+            if select_robot == 0:
+                robot = robot_1
+            else:
+                robot = robot_2
 
             # calculate velocity
             dt = time.time() - time_last  #  time difference
@@ -397,7 +397,7 @@ if __name__ == '__main__':
             # cmd_att_1 = np.array([10,10,  0, 60000])
             cmd_att = np.array([cmd_att_1])
             seq_args = swarm_exe(cmd_att)
-            swarm.parallel(arm_throttle, args_dict=seq_args)
+            # swarm.parallel(arm_throttle, args_dict=seq_args)
 
             count = count + 1
             if count % 10 == 0:
@@ -406,15 +406,14 @@ if __name__ == '__main__':
                 print (ref_pos_1[1]) 
                 print('robot_position', robot[0], robot[1], robot[2])
                 print('roll forward:', cmd_att_1[1], 'pitch right:', cmd_att_1[0], 'thrust:', cmd_att_1[3])
-                print('robot ref pos', ref_pos)
+                print('robot ref z pos', ref_pos[2])
                 print('x pos_error', ref_pos[0]-robot[0])
                 print('y pos_error', ref_pos[1]-robot[1])
                 print('z pos_error', ref_pos[2]-robot[2])
-                print('dt: ',dt)
 
             # rmse accumulation
             rmse_x_num = rmse_x_num + (ref_pos[0]-robot[0])**2
-            rmse_y_num = rmse_y_num + (ref_pos[1]-robot[1])**2
+            rmse_y_num = rmse_y_num + (ref_pos[1]-robot[0])**2
             rmse_z_num = rmse_z_num + (ref_pos[2]-robot[2])**2
             
             # save data
@@ -422,7 +421,7 @@ if __name__ == '__main__':
                                 robot,ref_pos
                                 )
 
-            if (not skip_joystick and right_stick > -1) or (traj_round==1 and abs_time>34):
+            if (not skip_joystick and right_stick > -1) or (traj_round==1 and abs_time>31):
                 
                 """ # for hovering test
                 ref_pos[2] = 0.15
@@ -437,7 +436,7 @@ if __name__ == '__main__':
                 cmd_att_cut = np.array([0, 0, 0, 0]) # init setpt to 0 0 0 0
                 cmd_att = np.array([cmd_att_cut])
                 seq_args = swarm_exe(cmd_att)
-                swarm.parallel(init_throttle, args_dict=seq_args)
+                # swarm.parallel(init_throttle, args_dict=seq_args)
                 final_x_rmse = math.sqrt(rmse_x_num/count)
                 final_y_rmse = math.sqrt(rmse_y_num/count)
                 final_z_rmse = math.sqrt(rmse_z_num/count)

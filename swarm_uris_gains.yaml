@@ -1,0 +1,36 @@
+# YAML data, key is radio URI, value is list of [Kp, Ki, Kd]
+traj_chosen: 1 # 0 for hover, 1 for low rectangle, 2 for simple high rectangle, 3 for elevated circle, 4 for helix
+
+# gains are p,d,i
+drones:
+  # - uri: 'radio://0/30/2M/E7E7E7E711'
+  #   rigidbody_name: 'drone_1'
+  #   gains: [20, 10, 1]
+  - uri: 'radio://0/30/2M/E7E7E7E70C'
+    rigidbody_name: 'drone_2'
+    gains: [20, 10, 2]
+  - uri: 'radio://0/40/2M/E7E7E7E70D'
+    rigidbody_name: 'drone_3'
+    gains: [20, 10, 2]
+  # - uri: 'radio://2/50/2M/E7E7E7E70E'
+  #   rigidbody_name: 'drone_4'
+  #   gains: [20, 10, 2]
+
+# offset applies to all drones in metres.
+global_x_offset: 0.0
+global_y_offset: 0.0
+
+
+# optitrack boundary
+x_range: [-5,5] 
+y_range: [-5,5]
+z_range: [0,2]
+
+optitrack_rate: 100 #hz
+
+server_ips: 
+  - '192.168.65.4' # Area 65 optitrack server IP
+  - '169.254.254.225' # Dyson lab optitrack server IP
+chosen_server: 0 # 0 for Area 65, 1 for Dyson lab
+skip_joystick: true # set to false to wait for joystick arm before starting the swarm
+enable_flying: true # set to false to disable flying commands to the swarm
